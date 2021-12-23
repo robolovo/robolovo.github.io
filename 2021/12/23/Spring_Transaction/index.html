@@ -122,14 +122,28 @@
 <br>
 
 <h3 id="스프링-트랜잭션-추상화-이해하기"><a href="#스프링-트랜잭션-추상화-이해하기" class="headerlink" title="스프링 트랜잭션 추상화 이해하기"></a>스프링 트랜잭션 추상화 이해하기</h3><p>스프링은 각 영속성 API(JDBC, JPA, Hibernate)에 종속적인 코드를 이용하지 않고도 일관되게 트랜잭션을 처리할 수 있도록 하는 트랜잭션 추상화 기술을 제공하고 있습니다.</p>
-<p>그럼 직접 코드를 보도록 하겠습니다.</p>
-<p>트랜잭션의 추상화 전략은 PlatformTransactionManager 인터페이스에 정의되어 있으며, 다음과 같습니다.</p>
+<br>
+<br>
+
+<p>트랜잭션의 추상화 전략은 <strong><em>PlatformTransactionManager</em></strong> 인터페이스에 정의되어 있으며, 다음과 같습니다.</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public interface PlatformTransactionManager extends TransactionManager &#123;</span><br><span class="line"></span><br><span class="line">    TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;</span><br><span class="line"></span><br><span class="line">    void commit(TransactionStatus status) throws TransactionException;</span><br><span class="line"></span><br><span class="line">    void rollback(TransactionStatus status) throws TransactionException;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>(여기서 상속받고 있는 TransactionManager는 <a target="_blank" rel="noopener" href="https://www.baeldung.com/java-marker-interfaces">마커 인터페이스(Marker Interface)</a> 입니다.<br>메서드의 반환값과 매개변수인 TransactionStatus과 TransactionDefinition에 대한 설명은 공식문서를 참고하시기 바랍니다.)</p>
-<p>그리고 다음과 같이, PlatformTransactionManager를 AbstractPlatformTransactionManager라는 추상 클래스가 구현하고 있습니다.<br><img src="images/AbstractPlatformTransactionManager.png" alt="AbstractPlatformTransactionManager"></p>
-<p>그리고 마지막으로 가장 중요한 부분인데요, AbstractPlatformTransactionManager는 다음과 같이 여러 클래스에서 상속받아 재정의(Override)되고 있습니다.<br><img src="images/AbstractPlatformTransactionManager2.png" alt="AbstractPlatformTransactionManager2"></p>
+<br>
+<br>
+<br>
+
+<p>그리고 다음과 같이, <strong><em>PlatformTransactionManager</em></strong> 를 <strong><em>AbstractPlatformTransactionManager</em></strong> 라는 추상 클래스가 구현하고 있습니다.<br><img src="images/AbstractPlatformTransactionManager.png" alt="AbstractPlatformTransactionManager"></p>
+<br>
+<br>
+
+<p>그리고 마지막으로 가장 중요한 부분인데요, <strong><em>AbstractPlatformTransactionManager</em></strong> 는 다음과 같이 여러 클래스에서 상속받아 재정의(Override)되고 있습니다.<br><img src="images/AbstractPlatformTransactionManager2.png" alt="AbstractPlatformTransactionManager2"></p>
+<br>
+<br>
+
 <p>다음과 같이 사용 예제를 만들어 보았습니다.<br><img src="images/exampleCode.png" alt="exampleCode"></p>
+<br>
+
 <p>이로써 우리는 각각의 기술들이 어떻게 트랜잭션을 처리해 줘야 하는지 신경 쓸 필요가 없게 되었습니다.<br>어떤 영속성 API를 사용하던, 위의 예제처럼 인터페이스의 구현체만 갈아 끼워주면 해당하는 API에 맞게 스프링의 트랜잭션 기술을 사용할 수 있는 것입니다. </p>
 <br>
 <br>
