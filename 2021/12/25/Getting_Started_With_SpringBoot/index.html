@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="junslee&#39;s blog">
+  <meta name="keyword" content="develop">
+  
+    <link rel="shortcut icon" href="/css/images/favicon.png">
+  
+  <title>
+    
+      Spring Boot를 시작하기 전에 알아두면 유용한 지식 | Home
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+  
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <span>Home</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/develop/" class="item-link">Develop</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/diary/" class="item-link">Diary</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/develop/" class="menu-link">Develop</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/diary/" class="menu-link">Diary</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Boot를 시작하기 전에 알아두면 유용한 지식</h2>
+  <p class="post-date">2021-12-25</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="스프링-핵심-개념"><a href="#스프링-핵심-개념" class="headerlink" title="스프링 핵심 개념"></a>스프링 핵심 개념</h1><p>스프링의 핵심 개념은 <b>의존성 주입(Dependency Injection)</b>과 <b>제어의 역전(Inversion Of Control)</b>에 있습니다. </p>
+<p><b>의존성 주입</b>이란, 외부에서 객체를 생성한 후 주입시켜주는 것을 말합니다. 다음 코드와 같이 말이죠.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Service</span><br><span class="line">public class CustomerService &#123;</span><br><span class="line">    // 생략..</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@Controller</span><br><span class="line">public class CustomerController &#123;</span><br><span class="line">    // 의존성 주입 X </span><br><span class="line">    // private final CustomerService customerService = new CustomerService();</span><br><span class="line">    </span><br><span class="line">    // 외부에서 생성된 CustomerService 객체를 CustomerController의 생성자를 통해 주입받습니다.</span><br><span class="line">    private final CustomerService customerService;</span><br><span class="line">    </span><br><span class="line">    // 생성자</span><br><span class="line">    public CustomerController(CustomerService customerService) &#123;</span><br><span class="line">        this.CustomerService = customerService;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>위의 코드에서 보이는 <b>@Controller</b>와 <b>@Service</b>는 무엇일까요?<br>간단히 설명하면, 클래스에 위의 애너테이션을 명시하면 해당 클래스는 스프링이 관리하는 객체로 등록을 하겠다는 의미입니다.<br>여기서 스프링에서 관리하는 객체를 <b>스프링 빈(Bean)</b>이라고 부르는데요, 아래에서 좀 더 자세히 알아보도록 하겠습니다.</p>
+<p>아무튼 의존성 주입이 되는 객체를 스프링에서 관리해 주기 때문에 개발자는 비즈니스 로직에만 집중할 수 있고,<br>이렇게 프로그램의 주도권이 개발자에게 있는 것이 아닌 프레임워크에게 주도권이 역전되었다고 하여 <b>제어의 역전</b>이라고 불립니다.</p>
+<br>
+
+<p><code>이들로 인해서 객체간의 관심사를 분리시키고 결합도를 낮추는 방식으로 어플리케이션을 개발 할 수 있으며</code><br><code>이러한 프로그램은 단위 테스트와 유지보수 또한 용이하기 때문에 보다 높은 퀄리티의 프로그램을 개발 할 수 있습니다.</code></p>
+<br>
+<br>
+<br>
+
+<h1 id="스프링-IOC-컨테이너와-스프링-빈"><a href="#스프링-IOC-컨테이너와-스프링-빈" class="headerlink" title="스프링 IOC 컨테이너와 스프링 빈"></a>스프링 IOC 컨테이너와 스프링 빈</h1><p>스프링 프레임워크는 스프링 빈(Bean)들을 생성하고 관리하는 스프링 컨테이너를 가지고 있습니다.<br>스프링 컨테이너는 <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/beans/factory/BeanFactory.html">Bean Factory</a> 와 이를 상속한 <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/ApplicationContext.html">ApplicationContext</a> 2가지 유형이 존재합니다.</p>
+<p><b>스프링 빈(Bean)</b>은 스프링 컨테이너에서 관리하는 자바 객체를 가리킵니다.<br>ApplicationContext가 만들어서 그 안에 담고있는 객체이며, ApplicationContext.getBean()으로 얻어지는 객체입니다.</p>
+<p>그렇다면 스프링 컨테이너에 어떻게 빈을 등록할까요?<br><b>컴포넌트 스캔(Component Scan)</b>이란 방법인데요, 간단히 설명하면 <b>@Component</b> 애너테이션이 붙은 클래스를 찾아 빈으로 등록하는 방법입니다.</p>
+<p>그럼 컴포넌트 스캔을 하는데 위의 예제에서 @Controller와 @Service 애너테이션을 추가 해주는 것과 무슨 상관일까요?</p>
+<img alt="controller" height="80" src="images/ControllerAnnotation.png" width="500"/>
+
+<img alt="service" height="80" src="images/ServiceAnnotation.png" width="500"/>
+
+<p>인텔리제이의 코드 네비게이팅 기능을 이용하여 보니, 위와 같이 두 애너테이션 모두 @Component를 정의하고 있다는 것을 알 수 있습니다.</p>
+<br>
+<br>
+<br>
+
+<h1 id="스프링-vs-스프링-부트"><a href="#스프링-vs-스프링-부트" class="headerlink" title="스프링 vs 스프링 부트"></a>스프링 vs 스프링 부트</h1><p>스프링이 기존의 문제를 해결해주고 많은 이점을 가져다줬지만, 한 가지 어려움에 직면해 있었습니다.<br>기본 프로젝트를 세팅하는데 너무 많은 시간이 걸리게 되면서 이런 부분이 개발자에게 큰 부담이 된다는 점이었습니다.</p>
+<p>스프링 부트는 이러한 단점을 없애기 위해 만들어진 스프링 프로젝트입니다.<br>그럼 스프링 부트는 위의 문제를 어떻게 해결했을까요?</p>
+<ul>
+<li>스프링 부트는 자동 설정을 이용하여 어플리케이션 개발에 필요한 모든 내부 디펜던시(dependency)를 관리합니다.</li>
+<li>스프링 부트는 <b>spring-boot-starter</b>라는 미리 설정된 스타터 프로젝트를 제공하여 복잡도를 줄였고, 이로써 개발자는 라이브러리 간의 버전 호환성을 신경 쓸 필요가 없게 되었습니다. </li>
+</ul>
+<p>아래 사진은 build.gradle 파일(오른쪽)에 spring-boot-starter-web 의존성을 추가하였을 때 자동으로 클래스 패스(class path)에 생기는 jar 파일들(왼쪽) 입니다.</p>
+<p><img src="images/SpringBootProject.png" alt="springBootProject"></p>
+<p>몇가지 스프링 부트 스타터 프로젝트를 소개하자면 다음과 같습니다. </p>
+<ul>
+<li><b>spring-boot-starter-web</b>: 웹, RESTful 어플리케이션 개발을 위한 모듈</li>
+<li><b>spring-boot-starter-test</b>: 단위테스트 및 통합테스트를 위한 모듈</li>
+<li><b>spring-boot-starter-jdbc</b>: 기본적인 jdbc 모듈</li>
+<li><b>spring-boot-starter-security</b>: 어플리케이션 보안(인증과 권한)을 위한 스프링 시큐리티 프로젝트 모듈</li>
+<li><b>spring-boot-starter-data-jpa</b>: spring data jpa with hibernate 모듈</li>
+</ul>
+<br>
+<br>
+<br>
+
+<h1 id="톰캣-Tomcat"><a href="#톰캣-Tomcat" class="headerlink" title="톰캣 Tomcat"></a>톰캣 Tomcat</h1><p>스프링 부트 기본 내장 웹 서버인 톰캣(Tomcat)에 대해서 알아보겠습니다.</p>
+<p>📍 <code>톰캣은 WAS이지만 정적 파일을 처리할 수 있는 웹 서버의 기능도 포함하고 있습니다.</code></p>
+<p>톰캣은 <b>WAS(Web Application Server)</b>입니다.<br>WAS란 클라이언트의 요청을 받아 정적 컨텐츠만을 응답하는 웹 서버(Web Server)와는 다르게 동적 컨텐츠를 응답하는 서버입니다.</p>
+<ul>
+<li><b>정적 컨텐츠</b>: html, css, js</li>
+<li><b>동적 컨텐츠</b>: DB 접근이나 비즈니스 로직 처리가 필요한 리소스</li>
+</ul>
+<br>
+
+<p>일반적으로 웹 프로그래밍의 경우 다음과 같은 구조를 통해 클라이언트와 통신을 하게 됩니다.</p>
+<p><img src="images/webServer.png" alt="webServer"></p>
+<p>그렇다면 Web Server와 WAS를 따로 두는 이유는 무엇일까요? 이유는 다음과 같습니다.</p>
+<ul>
+<li>각 요청에 따른 업무를 나누어서 목적에 따른 성능상의 장점을 살릴 수 있습니다. (모든 정적 컨텐츠를 웹서버에서 처리해주면 WAS의 부담을 덜어줄 수 있겠죠.)</li>
+<li>클라이언트가 직접 WAS와 통신하지 못하게 중계 역할을 해서 보안적으로 안전하게 할 수 있습니다. </li>
+<li>웹 서버가 로드 밸런싱 역할을 하게 만들어 하나의 웹 서버에 여러대의 WAS를 연결할 수 있습니다. (하나의 WAS가 처리하는 요청이 줄어들어 안정적인 서비스 운영이 가능합니다.) </li>
+</ul>
+<br>
+<br>
+<br>
+
+<h1 id="참조-문헌"><a href="#참조-문헌" class="headerlink" title="참조 문헌"></a>참조 문헌</h1><p><a target="_blank" rel="noopener" href="https://dzone.com/articles/spring-vs-spring-boot">https://dzone.com/articles/spring-vs-spring-boot</a><br><a target="_blank" rel="noopener" href="https://taes-k.github.io/2020/02/16/servlet-container-spring-container/">https://taes-k.github.io/2020/02/16/servlet-container-spring-container/</a></p>
+</section>
+    <!-- Tags START -->
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/23/Spring_Transaction_Abstraction/">
+        <span class="nav-arrow">← </span>
+        
+          스프링 트랜잭션(Transaction) 추상화
+        
+      </a>
+    
+    
+  </div>
+
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%EC%8A%A4%ED%94%84%EB%A7%81-%ED%95%B5%EC%8B%AC-%EA%B0%9C%EB%85%90"><span class="toc-nav-text">스프링 핵심 개념</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%EC%8A%A4%ED%94%84%EB%A7%81-IOC-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88%EC%99%80-%EC%8A%A4%ED%94%84%EB%A7%81-%EB%B9%88"><span class="toc-nav-text">스프링 IOC 컨테이너와 스프링 빈</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%EC%8A%A4%ED%94%84%EB%A7%81-vs-%EC%8A%A4%ED%94%84%EB%A7%81-%EB%B6%80%ED%8A%B8"><span class="toc-nav-text">스프링 vs 스프링 부트</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%ED%86%B0%EC%BA%A3-Tomcat"><span class="toc-nav-text">톰캣 Tomcat</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%EC%B0%B8%EC%A1%B0-%EB%AC%B8%ED%97%8C"><span class="toc-nav-text">참조 문헌</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://junslee.dev/2021/12/25/Getting_Started_With_SpringBoot/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
