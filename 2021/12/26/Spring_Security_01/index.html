@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="junslee&#39;s blog">
+  <meta name="keyword" content="develop">
+  
+    <link rel="shortcut icon" href="/css/images/favicon.png">
+  
+  <title>
+    
+      Spring Security 파헤치기 (1) | Home
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+  
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <span>Home</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/develop/" class="item-link">Develop</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/diary/" class="item-link">Diary</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/develop/" class="menu-link">Develop</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/diary/" class="menu-link">Diary</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring Security 파헤치기 (1)</h2>
+  <p class="post-date">2021-12-26</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><br>
+
+<p>Spring Security는 스프링에서 보안(인증과 인가)기술을 제공하는 스프링 프로젝트 중 하나입니다.<br>거의 프레임워크에 맞먹는 방대한 크기의 라이브러리인데요, 차근차근 베일을 벗겨가면서 풀어 헤쳐보도록 하겠습니다.</p>
+<br>
+<br>
+
+<h1 id="시작하기"><a href="#시작하기" class="headerlink" title="시작하기"></a>시작하기</h1><p>먼저 build.gradle파일에 다음과 같이 spring-boot-starter-security 디펜던시를 추가합니다.</p>
+<p><img src="images/dependency.png" alt="dependency"></p>
+<p>별다른 설정이나 코드 작성 없이 바로 어플리케이션을 실행하여 시작해 봅니다. 로그 중간에 랜덤하게 생성된 비밀번호를 확인할 수 있습니다.</p>
+<p><img src="images/log.png" alt="log"></p>
+<p><code>localhost:8080</code>에 접속해보면 자동으로 <code>localhost:8080/login</code>으로 리다이렉트 되어진 로그인 페이지를 볼 수 있습니다.</p>
+<p><img src="images/localhost.png" alt="localhost"></p>
+<p>Username으로 <code>user</code>와 Password로 위에 로그에 찍힌 생성된 비밀번호를 입력한 후 로그인 하면 로그인에 성공합니다.</p>
+<p>그런데 어떻게 아무런 설정없이 디펜던시를 추가하는 것만으로도 이게 가능해진 걸까요?</p>
+<p>그 이유는 스프링 부트가 디펜던시를 추가하는 것만으로도 자동으로 스프링 시큐리티의 아래와 같은 디폴트 설정(configuration)을 활성화 하기 때문입니다.</p>
+<ul>
+<li>springSecurityFilterChain이라는 이름의 서블릿 필터를 빈으로써 생성합니다. 이 빈은 어플리케이션의 모든 보안 관련된 일을 처리합니다.(어플리케이션 URL을 보호하기, 인증이 필요한 사용자를 로그인 페이지로 리다이렉팅시키기, 사용자의 이메일과 비밀번호를 검증하기 등..)</li>
+<li>username으로 <code>user</code>과 랜덤하게 생성되는 password를 가지는 UserDetailsService라는 빈을 생성합니다.</li>
+<li>각 요청마다 springSecurityFilterChain이라는 이름의 빈을 생성합니다.</li>
+</ul>
+<p>기본 실행은 여기까지입니다. 이제 자신의 웹 사이트에 맞는 </p>
+<br>
+<br>
+<br>
+
+<h1 id="아키텍처"><a href="#아키텍처" class="headerlink" title="아키텍처"></a>아키텍처</h1><p>스프링 시큐리티는 서블릿 필터 기반의 인증 방식을 사용합니다.</p>
+<p>쉽게 말해서, 사용자가 어플리케이션의 어떤 URL에 접근(요청)했을 때 HttpServletRequest가 내부적으로 Controller에 접근하기 전에 먼저 스프링 시큐리티 필터들의 보안 절차를 통과한다고 보면 될 것 같습니다.</p>
+<p>스프링 시큐리티와 관련된 필터의 시작점은 FilterChainProxy입니다. <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-securityfilterchain">공식문서</a>의 그림을 참고하세요.</p>
+<p>스프링 시큐리티와 관련된 필터는 <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-security-filters">다음과 같은 순서</a>로 필터를 호출합니다.</p>
+<br>
+<br>
+<br>
+
+<h1 id="인증과-인가"><a href="#인증과-인가" class="headerlink" title="인증과 인가"></a>인증과 인가</h1><p><b>인증</b>: 인증이란 누군가를 식별하는 행위라고 보면됩니다. 가령 사용자에게 이메일과 비밀번호를 입력하게 함으로써 내부 인증 로직을 통해 접근하는 주체가 누구인가를 식별할 수 있습니다.</p>
+<p><b>인가</b>: 인증된 사용자에 한해서, 어떤 권한이 부여되어 있느냐에 따라 리소스에대한 접근을 막거나 허락하는 등의 행위입니다.</p>
+<br>
+<br>
+<br>
+
+
+<h1 id="인증-Authentication"><a href="#인증-Authentication" class="headerlink" title="인증 Authentication"></a>인증 Authentication</h1><p><b><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html#servlet-authentication-securitycontextholder">SecurityContextHolder</a> </b>: 스프링 시큐리티 인증 모델에서 가장 중요한 심장부라고 할 수 있습니다. SecurityContext를 담고 있으며, 로그인에 성공한 인증된 사용자의 정보가 저장되는 곳입니다.</p>
+<p><b>SecurityContext</b>: Authentication을 보관하고 있습니다. SecurityContextHolder로 부터 얻어올 수 있으며 SecurityContextHolder.getContext()로 반환됩니다.</p>
+<p><b>Authentication</b>: 현재 접근하는 주체(사용자)의 정보와 권한을 담고있습니다. SecurityContext로 부터 가져올 수 있으며 SecurityContextHolder.getContext().getAuthentication()으로 반환됩니다.</p>
+<p><b>AuthenticationManager</b>: </p>
+<p><b>AuthenticationEntryPoint</b>: 접근하는 사용자에게 인증을 요구하는 Http 응답을 보내기 위해 사용됩니다. 예를 들어, 인증되지 않은 사용자가 권한이 필요한 리소스에 접근하려고 할 때 로그인 페이지로 리다이렉팅 시키거나, Http 응답 헤더에 WWW-Authenticate를 실어 보내는 등의 방법이 있습니다.</p>
+<hr>
+
+<p>어느 정도 핵심 개념에 대해서 알아 봤으니, 어떤 흐름으로 인증 과정을 거치는 지 알아보도록 하겠습니다.<br>아래 그림은 스프링 시큐리티 공식문서에서 가져온 그림이고, 그 아래에 번호마다 설명을 달아보았습니다.</p>
+<p><img src="images/docs2.png" alt="docs2"></p>
+<ol>
+<li><p>사용자가 이메일과 비밀번호를 제출해 로그인(인증) 요청을 하게 되면 <b>AbstractAuthenticationProcessingFilter</b>는 <b>HttpServletRequest</b>로 부터 <b>Authentication</b>을 생성합니다.<br>이 때, Authentication은 AbstractAuthenticationProcessingFilter의 서브 클래스에 의거하여 생성되는데요,<br>아래와 같이 <b>UsernamePasswordAuthenticationFilter</b>는 HttpServletRequest로 제출된 사용자의 username과 password로 부터 UsernamePasswordAuthenticationToken을 생성합니다. (UsernamePasswordAuthenticationFilter가 AbstractAuthenticationProcessingFilter의 서브 클래스이다.)<br><img src="images/UsernamePasswordAuthenticationFilter.png" alt="image1"></p>
+</li>
+<li><p><b>Authentication</b>이 <b>AuthenticationManager</b>에게 건네 집니다.</p>
+</li>
+<li><p>인증에 <b>실패</b>할 경우, <b>SecurityContextHolder</b>를 깨끗하게 비웁니다. 그리고 <b>AuthenticationFailureHandler</b>를 호출하여 실패에 대한 로직을 수행합니다.</p>
+</li>
+<li><p>인증에 <b>성공</b>할 경우, <b>SecurityContextHolder</b>에 <b>Authentication</b>을 보관합니다. (SecurityContextHolder에 Authentication이 있다는 것은 현재 접근하는 주체(사용자)가 인증된 사용자라는 것을 의미합니다.) 그리고 <b>AuthenticationSuccessHandler</b>를 호출하여 성공에 대한 로직을 수행합니다.</p>
+</li>
+</ol>
+<br>
+<br>
+<br>
+
+</section>
+    <!-- Tags START -->
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/25/Getting_Started_With_SpringBoot/">
+        <span class="nav-arrow">← </span>
+        
+          Spring Boot를 시작하기 전에 알아두면 유용한 지식
+        
+      </a>
+    
+    
+  </div>
+
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0"><span class="toc-nav-text">시작하기</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98"><span class="toc-nav-text">아키텍처</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%EC%9D%B8%EC%A6%9D%EA%B3%BC-%EC%9D%B8%EA%B0%80"><span class="toc-nav-text">인증과 인가</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%EC%9D%B8%EC%A6%9D-Authentication"><span class="toc-nav-text">인증 Authentication</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://junslee.dev/2021/12/26/Spring_Security_01/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
