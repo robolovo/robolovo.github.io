@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="junslee&#39;s blog">
+  <meta name="keyword" content="develop">
+  
+    <link rel="shortcut icon" href="/css/images/favicon.png">
+  
+  <title>
+    
+      객체지향 프로그래밍 자문자답 | Home
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+  
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <span>Home</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/develop/" class="item-link">Develop</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/diary/" class="item-link">Diary</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/develop/" class="menu-link">Develop</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/diary/" class="menu-link">Diary</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>객체지향 프로그래밍 자문자답</h2>
+  <p class="post-date">2022-01-16</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><br>
+<br>
+
+<p>가끔 말로 설명하는 것보다 코드로 설명하는 게 훨씬 쉽다고 생각하는 부분이 있는데 그중 하나가 객체지향 프로그래밍인 것 같다.<br>객체지향 프로그래밍을 코드로만 이해하고 있었기 때문에 막상 누군가가 <code>객체지향이 뭔가요?</code>라고 물어보면 자신 있게 설명할 자신이 없었다.<br>이런 답답한 마음을 해소하고 싶어서 알아보다가 <code>오브젝트</code>라는 책을 알게 되었다.<br>오브젝트라는 책은 예제 코드도 좋지만 평소에 내가 코드로만 이해하고 있던 내용들이 구체적인 설명과 용어로 잘 정리되어 있다는 점이 너무 마음에 들었다.<br>이런 좋은 내용들을 다 기억하기는 어려울 것 같아 나중에 다시 책을 들여다봐야 하는 수고를 덜기 위해 블로그에 질답 형식으로 책 내용을 정리해 보려고 한다.</p>
+<br>
+<br>
+<br>
+
+<h4 id="절차적-프로그래밍은-어떠한-문제점이-있었고-객체지향-프로그래밍은-이러한-문제를-어떻게-해결하였는가"><a href="#절차적-프로그래밍은-어떠한-문제점이-있었고-객체지향-프로그래밍은-이러한-문제를-어떻게-해결하였는가" class="headerlink" title="절차적 프로그래밍은 어떠한 문제점이 있었고, 객체지향 프로그래밍은 이러한 문제를 어떻게 해결하였는가?"></a>절차적 프로그래밍은 어떠한 문제점이 있었고, 객체지향 프로그래밍은 이러한 문제를 어떻게 해결하였는가?</h4><ul>
+<li>절차적 프로그래밍은 실행을 주도하는 하나의 클래스가 실행에 필요한 모든 데이터에 의존해야 한다는 근본적인 문제점 때문에 변경에 취약할 수 밖에 없다.</li>
+<li>또한 절자척 프로그래밍은 우리의 직관에 위배된다. 절차적 프로그래밍의 세계에서는 모든 객체가 수동적인 존재이고 이러한 코드는 우리의 예상을 너무나도 쉽게 벗어나기 때문에 코드를 읽는 사람과 원활하게 의사소통하지 못한다.</li>
+<li>객체지향 프로그래밍은 모든 객체가 자율적인 존재이며 각각의 객체는 책임과 역할을 가지고 다른 모종의 객체들과 협력한다.</li>
+<li>객체지향 프로그래밍에서 각 객체는 자신의 역할에 필요한 데이터만 가지면 된다. 이는 하나의 변경으로 인한 여파가 여러 클래스로 전파되는 것을 효율적으로 억제한다.</li>
+<li>결과적으로, 객체지향 코드는 객체 자신의 문제를 스스로 처리해야 한다는 우리의 예상을 만족시켜주기 때문에 이해하기 쉽고, 객체 내부의 변경이 객체 외부에 파급되지 않도록 제어할 수 있기 때문에 변경하기가 수월하다.</li>
+</ul>
+<br>
+<br>
+<br>
+
+<h4 id="객체-지향-프로그래밍을-하면-접근-제어-메커니즘을-이용하여-클래스의-내부-외부의-경계를-나눈다-이를-은닉화-또는-캡슐화라고-하는데-이렇게-하는-이유는-무엇인가"><a href="#객체-지향-프로그래밍을-하면-접근-제어-메커니즘을-이용하여-클래스의-내부-외부의-경계를-나눈다-이를-은닉화-또는-캡슐화라고-하는데-이렇게-하는-이유는-무엇인가" class="headerlink" title="객체 지향 프로그래밍을 하면 접근 제어 메커니즘을 이용하여 클래스의 내부/외부의 경계를 나눈다. 이를 은닉화 또는 캡슐화라고 하는데, 이렇게 하는 이유는 무엇인가?"></a>객체 지향 프로그래밍을 하면 접근 제어 메커니즘을 이용하여 클래스의 내부/외부의 경계를 나눈다. 이를 은닉화 또는 캡슐화라고 하는데, 이렇게 하는 이유는 무엇인가?</h4><ul>
+<li>클래스 작성자는 접근 제어자를 사용하여 클라이언트 프로그래머가 클래스 내부에 마음대로 접근할 수 없도록 할 수 있다. 그렇게 함으로써 클라이언트 프로그래머에 대한 영향을 걱정하지 않고 내부 구현을 마음대로 변경할 수 있다.</li>
+<li>클래스 작성자는 불안정한 부분(변경이 일어날 확률이 높은 부분)과 안정적인 부분을 분리해서 변경의 영향을 통제할 수 있다. 다시 말해 변경 가능성이 높은 부분을 객체 내부로 숨기는 것이다.</li>
+<li>클라이언트 프로그래머는 내부의 구현은 무시한 채 인터페이스만 알고 있어도 클래스를 사용할 수 있기 때문에 머릿속에 담아둬야 하는 지식의 양을 줄일 수 있다.</li>
+<li>또한, 클라이언트 프로그래머가 실수로 숨겨진 부분에 접근하는 것을 막아준다. private 속성이나 메서드에 접근하려고 시도하면 컴파일러는 오류를 뱉는다.</li>
+<li>접근 제어 메커니즘은 프로그래밍 언어 차원에서 클래스의 내부와 외부를 명확하게 경계 지을 수 있게 하는 동시에 클래스 작성자가 내부 구현을 은닉할 수 있게 해준다.</li>
+</ul>
+<br>
+<br>
+<br>
+
+<h4 id="다형성이란-무엇인가"><a href="#다형성이란-무엇인가" class="headerlink" title="다형성이란 무엇인가?"></a>다형성이란 무엇인가?</h4><ul>
+<li>다형성이란 하나의 객체가 여러 가지 타입을 가질 수 있는 것을 의미한다.</li>
+<li>다형성은 객체지향 프로그램의 컴파일 시간 의존성과 실행 시간(런타임) 의존성이 다를 수 있다는 사실을 기반으로 한다.</li>
+<li>메시지와 메서드를 컴파일 시점이 아닌 런타임 시점에 결정하는 것으로, 나중에 결정한다고 하여 지연 바인딩(lazy binding) 또는 동적 바인딩(dynamic binding)이라고 부른다.</li>
+<li>다형적인 협력에 참여하는 객체들은 모두 같은 메시지를 이해할 수 있어야 한다. 다시 말해 인터페이스가 동일해야 한다는 것이고, 이를 구현하기 위해 주로 상속을 사용한다.</li>
+</ul>
+<br>
+<br>
+<br>
+
+<h4 id="상속은-객체지향에서-코드를-재사용하기-위해-널리-사용되는-기법이다-하지만-종종-상속보다는-합성이-더-좋다는-말을-많이-듣는다-그-이유가-무엇일까"><a href="#상속은-객체지향에서-코드를-재사용하기-위해-널리-사용되는-기법이다-하지만-종종-상속보다는-합성이-더-좋다는-말을-많이-듣는다-그-이유가-무엇일까" class="headerlink" title="상속은 객체지향에서 코드를 재사용하기 위해 널리 사용되는 기법이다. 하지만 종종 상속보다는 합성이 더 좋다는 말을 많이 듣는다. 그 이유가 무엇일까?"></a>상속은 객체지향에서 코드를 재사용하기 위해 널리 사용되는 기법이다. 하지만 종종 상속보다는 합성이 더 좋다는 말을 많이 듣는다. 그 이유가 무엇일까?</h4><ul>
+<li>상속은 캡슐화를 위반하고 설계를 유연하지 못하게 만든다.</li>
+<li>상속을 이용하기 위해서는 부모 클래스의 내부 구조를 잘 알고 있어야 하는데, 이때 부모 클래스의 구현이 자식 클래스에게 노출되기 때문에 캡슐화가 약화된다.</li>
+<li>캡슐화의 약화는 자식 클래스가 부모 클래스에 강하게 결합되도록 만들기 때문에 부모 클래스를 변경할 때 자식 클래스도 함께 변경될 확률을 높인다.</li>
+<li>또한 상속은 부모 클래스와 자식 클래스 사이의 관계를 컴파일 시점에 결정한다. 따라서 실행 시점에 객체의 타입을 변경하는 것이 불가능하다.</li>
+<li>결과적으로 상속을 과도하게 사용한 코드는 변경하기 어렵고, 유연하지 않다는 것이다.</li>
+</ul>
+<br>
+<br>
+<br>
+
+<h4 id="응집도와-결합도란-무엇인가"><a href="#응집도와-결합도란-무엇인가" class="headerlink" title="응집도와 결합도란 무엇인가?"></a>응집도와 결합도란 무엇인가?</h4><ul>
+<li>응집도와 결합도는 구조적 설계 방법이 주도하던 시대에 소프트웨어의 품질을 측정하기 위해 소개된 기준으로, 객체지향 시대에도 여전히 유효하다.</li>
+<li>응집도<ul>
+<li>응집도는 모듈에 포함된 내부 요소들이 연관돼 있는 정도를 나타낸다.</li>
+<li>응집도가 높을수록 변경의 대상과 범위가 명확해지기 때문에 코드를 변경하기 쉬워진다. 변경으로 인해 수정되는 부분을 파악하기 위해 여러 모듈을 동시에 수정할 필요가 없으며 변경을 반영하기 위해 오직 하나의 모듈만 수정하면 된다.</li>
+<li>반면 응집도가 낮은 설계에서는 하나의 원인에 의해 변경해야 하는 부분이 다수의 모듈에 분산돼 있기 때문에 여러 모듈을 동시에 수정해야 한다.</li>
+</ul>
+</li>
+<li>결합도<ul>
+<li>결합도는 의존성의 정도를 나타내며 다른 모듈에 대해 얼마나 많은 지식을 갖고 있는지를 나타내는 척도다.</li>
+<li>결합도는 한 모듈이 변경되기 위해서 다른 모듈의 변경을 요구하는 정도로 측정할 수 있다.</li>
+<li>결합도가 높으면 높을수록 함께 변경해야 하는 모듈의 수가 늘어나기 때문에 변경하기가 어려워진다.</li>
+</ul>
+</li>
+<li>만약 코드가 변경에 강하게 저항하고 있다면 구성 요소들의 응집도가 낮고 요소들이 서로 강하게 결합돼 있을 확률이 높다.</li>
+</ul>
+<br>
+<br>
+<br></section>
+    <!-- Tags START -->
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/01/04/Why_Test/">
+        <span class="nav-arrow">← </span>
+        
+          자동화 테스트로 더 나은 소프트웨어 만들기
+        
+      </a>
+    
+    
+  </div>
+
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://junslee.dev/2022/01/16/OOP/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
