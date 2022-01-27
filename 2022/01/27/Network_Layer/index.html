@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="junslee&#39;s blog">
+  <meta name="keyword" content="develop">
+  
+    <link rel="shortcut icon" href="/css/images/favicon.png">
+  
+  <title>
+    
+      TCP/IP 4계층 모델의 네트워크 통신 | Home
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+  
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <span>Home</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/develop/" class="item-link">Develop</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/diary/" class="item-link">Diary</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/develop/" class="menu-link">Develop</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/diary/" class="menu-link">Diary</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>TCP/IP 4계층 모델의 네트워크 통신</h2>
+  <p class="post-date">2022-01-27</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><br>
+
+<img alt="통합테스트" height="550" src="images/네트워크.png" width="1000"/>
+
+<br>
+
+<ol>
+<li><p>커널에 <b>‘TCP/IP로 통신하고 싶으니까 상대방 애플리케이션과 통신할 수 있는 회선을 열어줘’</b>라고 외뢰(시스템 콜).</p>
+<ul>
+<li>이때 접속 대상 서버의 IP 주소와 TCP포트의 2가지 정보가 필요.</li>
+</ul>
+</li>
+<li><p>외뢰 받은 커널은 <b>소켓을 만들어 줌</b>(데이터를 보내기 위해 구멍을 연 것).</p>
+</li>
+<li><p><b>TCP를 사용한다는 것과 IP 주소 및 포트 번호를 커널에 전달(시스템 콜)</b>하면, 접속 대상 서버와의 연결이 생성 됨.</p>
+</li>
+<li><p>이때 상대방 서버에서도 소켓이 만들어지며 상대 서버와의 사이에 <b>가상 경로(버츄얼 서킷)</b>가 생성됨.</p>
+<ul>
+<li>실제 데이터는 물리적인 통신 케이블을 통해 긴 여정을 거쳐서 상대방에게 전달되는 것이지만, 프로세스 관점에서는 소켓에 기록한 데이터가 가상 경로를 통해서 상대 통신 소켓으로 나오는 것.</li>
+<li>가상 경로를 생성할 때 TCP의 <b>3-way handshaking</b>을 통해 생성함.<ul>
+<li>간단히 예를 들면, 상대 서버가 80포트를 리슨하고 있다면 80포트로 통신 요구가 오고 별 문제가 없으면 열어도 된다고 응답. 그리고 나서 가상경로가 열리는데, 이 과정에서 3번의 회신이 오가서 <b>3-way handshaking</b>이라고 함.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><b>소켓에 기록된 데이터</b>는 <b>큐(FIFO)</b>를 경유해서 커널 내 네트워크 처리 부분에 전달됨. </p>
+</li>
+<li><p>큐를 거쳐 커널에 전달된 데이터는 <b>소켓 버퍼</b>라는 메모리 영역에서 처리되는데, <b>데이터에 TCP 헤더를 붙여서 TCP 세그먼트를 생성</b>함.  </p>
+</li>
+<li><p>TCP 세그머트가 만들어지면 다음은 IP 처리가 시작되는데, 이때 <b>TCP 세그먼트에 IP 헤더를 붙여서 IP 패킷을 생성</b>.</p>
+<ul>
+<li><b>IP 패킷(IP 다이어그램)</b>  ==  <b>IP 헤더</b> + <b>TCP 세그먼트</b> == <b>IP 헤더</b> + <b>TCP 헤더</b> + <b>데이터</b></li>
+<li>대상 서버까지는 이 IP 패킷 형태로 네트워크를 경유해서 도달함. (IP 헤더에는 최종 목적지 서버의 IP 주소가 기록됨.)</li>
+</ul>
+</li>
+<li><p>IP 패킷이 만들어지면 계속해서 링크 계층(대표적인 프로토콜: 이더넷, ethernet)의 처리가 시작됨. </p>
+<ul>
+<li>IP 패킷에 <b>이더넷 헤더와 푸터</b>를 붙여서 <b>이더넷 프레임</b>을 만든다. </li>
+<li>이더넷 헤더에는 <b>링크 계층 주소인 MAC 주소</b>가 기록되고, 목적지 IP 주소에 따라 <b>라우팅 테이블</b>을 이용해서 어떤 NIC에서 보내야 할지 결정.</li>
+</ul>
+</li>
+<li><p>그 후에 OS가 버스를 통해 NIC(Network Interface Controller)에 전달.</p>
+</li>
+<li><p>IP가 최종 목적지 서버까지 <b>복수의 네트워크를 경유해서 데이터를 전송</b>한다.</p>
+<ul>
+<li>송신 및 수신 시에 서버 내에서만 처리되는 TCP와 달리 <b>IP는 경로 도중에 다양한 처리가 이루어진다</b>. e.g. <b>라우팅(Routing)</b></li>
+</ul>
+</li>
+</ol>
+<br>
+<br>
+<br>
+
+<h3 id="참조-문헌"><a href="#참조-문헌" class="headerlink" title="참조 문헌"></a>참조 문헌</h3><p><a target="_blank" rel="noopener" href="http://www.kyobobook.co.kr/product/detailViewKor.laf?mallGb=KOR&ejkGb=KOR&barcode=9791185890265">그림으로 공부하는 IT 인프라 구조</a></p>
+<br>
+<br></section>
+    <!-- Tags START -->
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/01/16/OOP/">
+        <span class="nav-arrow">← </span>
+        
+          객체지향 프로그래밍 자문자답
+        
+      </a>
+    
+    
+  </div>
+
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://junslee.dev/2022/01/27/Network_Layer/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
