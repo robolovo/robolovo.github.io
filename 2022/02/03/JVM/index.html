@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="junslee&#39;s blog">
+  <meta name="keyword" content="develop">
+  
+    <link rel="shortcut icon" href="/css/images/favicon.png">
+  
+  <title>
+    
+      JVM Spec으로 알아보는 JVM 런 타임 데이터 영역 | Home
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+  
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <span>Home</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/develop/" class="item-link">Develop</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/diary/" class="item-link">Diary</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/develop/" class="menu-link">Develop</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/diary/" class="menu-link">Diary</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>JVM Spec으로 알아보는 JVM 런 타임 데이터 영역</h2>
+  <p class="post-date">2022-02-03</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><br>
+<br>
+
+<p>JVM은 스펙을 정해 놓고 JVM 벤더들이 이 정해진 스펙에 맞춰서 JVM을 개발하게 하는데, JVM 스펙에서 정의해놓지 않은 부분들은 벤더의 재량에 맡긴다.</p>
+<p>예를 들어, 힙의 구조나 GC 방식 등은 JVM 벤더의 재량이므로 어떻게 구현되느냐에 따라서 해당 기술의 동작이나 방식이 달라진다고 할 수 있다.</p>
+<p>그래서 오늘은 JVM 구현의 근본인 JVM 스펙을 읽어보고 JVM이 어떤 구조를 가지고 어떻게 동작하는 지 알아보도록 하겠다.</p>
+<p>그럼 본론으로 들어가기전에 그림으로 전체적인 구조를 파악해보자.</p>
+<p>아래 그림은 <b>Naver D2 JVM Internal</b>이라는 글에서 발췌한 그림들을 직접 짜맞춰 놓은 그림이고, 전체적인 JVM의 구조는 아래의 그림과 같다.   </p>
+<p>오늘은 아래 그림의 가운데에 보이는 <b>런 타임 데이터 영역(Runtime Data Areas)</b> 부분을 살펴볼 예정이다. (나머지 부분도 추후에 정리를 해놓을 생각이다.)</p>
+<br>
+<br>
+
+<img height="450" src="images/jvm_structure.png" width="1300"/>
+
+<br>
+
+<h2 id="PC-register"><a href="#PC-register" class="headerlink" title="PC register"></a>PC register</h2><ul>
+<li>JVM의 각 스레드는 각자의 pc(program counter) 레지스터를 갖는다.</li>
+<li>현재 수행 중인 JVM 인스트럭션의 주소를 담고있다.</li>
+</ul>
+<h2 id="JVM-stack"><a href="#JVM-stack" class="headerlink" title="JVM stack"></a>JVM stack</h2><ul>
+<li>JVM의 각각의 스레드는 공유되지 않는 자신만의 JVM 스택을 가지며, 이 스택은 스레드의 생성과 동시에 생성이 된다.</li>
+<li>스택 프레임(Frame)을 저장하는 스택이다.</li>
+<li>전통적인 프로그래밍 언어인 C의 스택과 유사한 개념이다.</li>
+</ul>
+<h2 id="Frame"><a href="#Frame" class="headerlink" title="Frame"></a>Frame</h2><ul>
+<li>JVM 내에서 메소드가 수행될 때 마다 새로운 프레임이 생성되어 스택에 추가되고 메서드가 종료되면 스택에서 제거된다.</li>
+<li>각각의 프레임은 자신만의 지역 변수 배열, 피연산자 스택, 현재 수행중인 메소드가 속한 클래스의 런 타임 상수 풀에 대한 참조를 갖는다.</li>
+</ul>
+<h2 id="Heap"><a href="#Heap" class="headerlink" title="Heap"></a>Heap</h2><ul>
+<li>JVM이 시작될 때 생성되며, 모든 JVM 스레드가 공유하는 영역이다.</li>
+<li>클래스 인스턴스와 배열들이 저장되는 공간이다.</li>
+<li>GC(가비지 콜렉터)에 의해 관리되는 공간으로 자원들을 명시적으로 deallocation을 할 필요가 없다.</li>
+<li>JVM 스펙에서는 특정한 GC의 기술(또는 방식)을 정의하지 않고 있으며, 이는 JVM 벤더의 재량이다.</li>
+</ul>
+<h2 id="Method-Area"><a href="#Method-Area" class="headerlink" title="Method Area"></a>Method Area</h2><ul>
+<li>JVM이 시작될 때 생성되며, 모든 JVM 스레드가 공유하는 영역이다.</li>
+<li>C와 같은 전통적인(?) 프로그래밍 언어의 컴파일된 코드를 저장하는 공간이라고 보면 된다.</li>
+<li>또는 OS 프로세스가 가지는 메모리의 “text” 세그먼트와 유사하다.<ul>
+<li>참고. text 세그먼트는 실행가능한 명령어를 포함하고 있는 메모리 영역이다.</li>
+</ul>
+</li>
+<li>JVM이 읽어 들인 각각의 클래스에 대한 런타임 상수 풀, 필드와 메서드 정보, static 변수, 메서드의 바이트코드 등을 보관한다.</li>
+</ul>
+<h2 id="Run-Time-Constant-Pool"><a href="#Run-Time-Constant-Pool" class="headerlink" title="Run-Time Constant Pool"></a>Run-Time Constant Pool</h2><ul>
+<li>JVM 동작에서 가장 핵심적인 역할을 수행하는 곳이다.</li>
+<li>각각의 클래스와 인터페이스에 대한 런 타임 상수 풀은 JVM에 의해 클래스나 인터페이스가 처음 생성될 때 만들어진다.</li>
+<li>각 클래스와 인터페이스의 상수뿐만 아니라, 메서드와 필드에 대한 모든 레퍼런스까지 담고 있는 테이블이다.</li>
+<li>즉, 어떤 메서드나 필드를 참조할 때 JVM은 런타임 상수 풀을 통해 해당 메서드나 필드의 실제 메모리상 주소를 찾아서 참조한다.</li>
+<li>javac xxxxx.java 명령어로 자바 파일을 컴파일 한 후, javap -c -s -verbose xxxxx.class 명령어를 수행하면 Constant pool을 직접 볼 수 있다.</li>
+</ul>
+<br>
+<br>
+<br>
+
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se11/html/index.html">The Java® Virtual Machine Specification</a><br><a target="_blank" rel="noopener" href="https://d2.naver.com/helloworld/1230">Naver D2, JVM Internal</a></p>
+<br>
+<br></section>
+    <!-- Tags START -->
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/02/02/Process_And_Virtual_Memory/">
+        <span class="nav-arrow">← </span>
+        
+          프로세스와 가상 메모리
+        
+      </a>
+    
+    
+  </div>
+
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://junslee.dev/2022/02/03/JVM/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
