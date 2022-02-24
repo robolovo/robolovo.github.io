@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="junslee&#39;s blog">
+  <meta name="keyword" content="develop">
+  
+    <link rel="shortcut icon" href="/css/images/favicon.png">
+  
+  <title>
+    
+      MySQL Replication | Home
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+  
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <span>Home</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/develop/" class="item-link">Develop</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/diary/" class="item-link">Diary</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/develop/" class="menu-link">Develop</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/diary/" class="menu-link">Diary</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>MySQL Replication</h2>
+  <p class="post-date">2022-02-24</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><br> 
+<br> 
+
+<p>인프라를 업그레이드 하는 방법에는 두 가지가 있습니다.<br>기존의 서버에 CPU나 메모리 같은 하드웨어의 성능을 높이는 스케일-인 방식과 기존의 서버와 비슷한 사양의 서버 대수를 증가시키는 스케일-아웃 방식입니다.<br>MySQL Replication은 스케일-아웃 방식에 해당되며, 스케일-인보다 비용이 저렴하고 갑자기 늘어나는 트래픽을 대응하는 데 훨씬 더 유연한 구조를 가지는 장점이 있습니다.<br>MySQL Replication의 아키텍쳐를 살펴보고 적용하는 방법까지 알아보도록 하겠습니다. </p>
+<br> 
+
+<h1 id="복제-아키텍쳐"><a href="#복제-아키텍쳐" class="headerlink" title="복제 아키텍쳐"></a>복제 아키텍쳐</h1><img alt="테스트피라미드" height="400" src="images/replication.png" width="1000"/>
+
+<ul>
+<li><strong>바이너리 로그</strong><ul>
+<li>MySQL 서버에서 발생하는 모든 변경 사항은 별도의 로그 파일에 순서대로 기록되는데, 이를 바이너리 로그라고 합니다.</li>
+<li>데이터의 변경 내역뿐만 아니라 데이터베이스나 테이블의 구조 변경과 계정이나 권한의 변경 정보까지 모두 저장됩니다.</li>
+<li>소스 서버에서 생성된 바이너리 로그가 레플리카 서버로 전송되고 레플리카 서버에서는 해당 내용을 로컬 디스크에 저장한 뒤 자신이 가진 데이터에 반영함으로써 소스 서버와 레플리카 서버 간에 데이터 동기화가 이뤄집니다.</li>
+</ul>
+</li>
+<li><strong>릴레이 로그</strong><ul>
+<li>레플리카 서버에서 소스 서버의 바이너리 로그를 읽어 들여 따로 로컬 디스크에 저장해둔 파일을 릴레이 로그라고 합니다.</li>
+</ul>
+</li>
+<li><strong>바이너리 로그 덤프 스레드 - 위 그림의 마스터 스레드</strong><ul>
+<li>레플리카 서버는 데이터 동기화를 위해 소스 서버에 접속해 바이너리 로그 정보를 요청합니다.</li>
+<li>소스 서버에서는 레플리카 서버가 연결될 때 내부적으로 바이너리 로그 덤프 스레드를 생성해서 바이너리 로그의 내용을 레플리카 서버로 전송합니다.</li>
+</ul>
+</li>
+<li><strong>레플리케이션 I/O 스레드 - 위 그림의 슬레이브 I/O 스레드</strong><ul>
+<li>I/O 스레드는 소스 서버의 바이너리 로그 덤프 스레드로부터 바이너리 로그 이벤트를 가져와 로컬 서버의 파일(릴레이 로그)로 저장하는 역할을 담당합니다.</li>
+</ul>
+</li>
+<li><strong>레플리케이션 SQL 스레드 - 위 그림의 슬레이브 SQL 스레드</strong><ul>
+<li>I/O 스레드에 의해 작성된 릴레이 로그 파일의 이벤트들을 읽고 실행합니다.</li>
+</ul>
+</li>
+</ul>
+<br> 
+
+<h1 id="적용해보기"><a href="#적용해보기" class="headerlink" title="적용해보기"></a>적용해보기</h1><h3 id="복제-계정-준비"><a href="#복제-계정-준비" class="headerlink" title="복제 계정 준비"></a>복제 계정 준비</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE USER &#x27;$&#123;Replication용 USER 이름&#125;&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;$&#123;설정할 비밀번호&#125;&#x27;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; GRANT REPLICATION SLAVE ON *.* TO &#x27;$&#123;생성한 Replication용 USER 이름&#125;&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;$&#123;비밀번호&#125;&#x27;;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="스키마-동기화-DB-덤프"><a href="#스키마-동기화-DB-덤프" class="headerlink" title="스키마 동기화(DB 덤프)"></a>스키마 동기화(DB 덤프)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mysqldump -u &#123;USER 이름&#125; -p &#123;스키마_이름&#125;.sql &gt; &#123;생성할_스키마_이름&#125;.sql</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mysql -u &#123;USER 이름&#125; -p &lt; &#123;스키마_이름&#125;.sql</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="복제-시작"><a href="#복제-시작" class="headerlink" title="복제 시작"></a>복제 시작</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CHANGE MASTER TO MASTER_HOST=&#x27;&#123;소스_DB서버_IP&#125;&#x27;, MASTER_PORT=&#123;PORT&#125;, MASTER_USER=&#x27;&#123;USER_이름&#125;&#x27;, MASTER_PASSWORD=&#x27;&#123;USER_비밀번호&#125;&#x27;, MASTER_LOG_FILE=&#x27;&#123;로그_파일_이름&#125;&#x27;, MASTER_LOG_POS=&#123;POS&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; START SLAVE;</span><br></pre></td></tr></table></figure>
+<p>위의 명령어를 입력하여 SLAVE를 시작시키고</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW SLAVE STATUS\G;</span><br></pre></td></tr></table></figure>
+<p>위의 명령을 입력하여 대략 아래와 같은 상태를 확인할 수 있습니다. </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Slave_IO_State: Waiting for master to send event</span><br><span class="line"></span><br><span class="line">... </span><br><span class="line"></span><br><span class="line">Slave_IO_Running: YES</span><br><span class="line">Slave_SQL_Running: YES</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>만약 Slave_IO_State, Slave_IO_Running, Slave_SQL_Running이 하나라도 다르게 출력될 경우 소스 서버의 호스트명이나 mysql의 포트 또는 레플리카 서버에서 사용하는 복제용 접속 계정과 비밀번호가 잘못 입력됐을 가능성이 높습니다.<br>또한 소스 서버와 레플리카 서버 간에 네트워크상의 문제가 없는지 확인해보는 것이 좋습니다.</p>
+<p>원인을 해결했다면,</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; RESET SLAVE ALL;</span><br></pre></td></tr></table></figure>
+<p>리셋을 한 후에</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CHANGE MASTER TO MASTER_HOST=&#x27;&#123;소스_DB서버_IP&#125;&#x27;, MASTER_PORT=&#123;PORT&#125;, MASTER_USER=&#x27;&#123;USER_이름&#125;&#x27;, MASTER_PASSWORD=&#x27;&#123;USER_비밀번호&#125;&#x27;, MASTER_LOG_FILE=&#x27;&#123;로그_파일_이름&#125;&#x27;, MASTER_LOG_POS=&#123;POS&#125;;</span><br></pre></td></tr></table></figure>
+<p>Master DB 설정하는 명령을 다시 입력하고,</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; START SLAVE;</span><br></pre></td></tr></table></figure>
+<p>SLAVE를 시작합니다.</p>
+<br>
+<br>
+
+<h3 id="SpringBoot-DataSource-설정"><a href="#SpringBoot-DataSource-설정" class="headerlink" title="SpringBoot DataSource 설정"></a>SpringBoot DataSource 설정</h3><p>읽기전용(Readonly) 작업은 Slave DB에 요청하고 읽기쓰기(Read/Write) 작업은 Master DB에 요청하려고 합니다.<br>즉, @Transaction(readonly = true)인 경우 Slave DB와 Master DB에, 나머지 CUD 작업은 Master DB에 요청하도록 분기 처리를 해주어야합니다.</p>
+<p>먼저, DataSource 설정이 필요합니다. application.yml에 해당 설정 정보를 입력해줍니다.<br>저는 깃헙 저장소에 EC2 IP가 노출되는 게 싫어서 application-datasource.yml을 만들어 서브모듈 프라이빗 저장소에 보관하고있습니다.<br>application-datasource.yml 설정은 다음과 같습니다.</p>
+<p>application-datasource.yml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  datasource:</span><br><span class="line">    master:</span><br><span class="line">      driver-class-name: com.mysql.cj.jdbc.Driver</span><br><span class="line">      url: jdbc:mysql://&#123;MASTER_DB_IP&#125;:&#123;PORT&#125;/&#123;DB_이름&#125;?serverTimezone=Asia/Seoul</span><br><span class="line">      username: &#123;USER_이름&#125;</span><br><span class="line">      password: &#123;USER_비밀번호&#125; </span><br><span class="line">    slaves:</span><br><span class="line">      slave1:</span><br><span class="line">        name: slave1</span><br><span class="line">        driver-class-name: com.mysql.cj.jdbc.Driver</span><br><span class="line">        url: jdbc:mysql://&#123;SLAVE_DB_IP&#125;:&#123;PORT&#125;/&#123;DB_이름&#125;?serverTimezone=Asia/Seoul</span><br><span class="line">        username: &#123;USER_이름&#125;</span><br><span class="line">        password: &#123;USER_비밀번호&#125;</span><br><span class="line">      slave2:</span><br><span class="line">        name: slave2</span><br><span class="line">        driver-class-name: com.mysql.cj.jdbc.Driver</span><br><span class="line">        url: jdbc:mysql://&#123;SLAVE_DB_IP&#125;:&#123;PORT&#125;/&#123;DB_이름&#125;?serverTimezone=Asia/Seoul</span><br><span class="line">        username: &#123;USER_이름&#125;</span><br><span class="line">        password: &#123;USER_비밀번호&#125;</span><br><span class="line"></span><br><span class="line">  jpa:</span><br><span class="line">    properties:</span><br><span class="line">      hibernate:</span><br><span class="line">        show_sql: true</span><br><span class="line">        generate-ddl: false</span><br><span class="line">        format_sql: false</span><br><span class="line">        physical_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy</span><br><span class="line">        jdbc:</span><br><span class="line">          lob:</span><br><span class="line">            non_contextual_creation: true</span><br></pre></td></tr></table></figure>
+
+<p>위에 설정한 DataSource 설정 정보를 코드를 통해 가져올 수 있습니다.<br>Properties 클래스를 하나 만들고 다음과 같이 작성합니다.</p>
+<p>ReplicationDataSourceProperties.java</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">@Setter</span><br><span class="line">@Getter</span><br><span class="line">@ConfigurationProperties(&quot;spring.datasource&quot;)</span><br><span class="line">public class ReplicationDataSourceProperties &#123;</span><br><span class="line"></span><br><span class="line">    private final Master master = new Master();</span><br><span class="line">    private final Map&lt;String, Slave&gt; slaves = new HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    @Setter</span><br><span class="line">    @Getter</span><br><span class="line">    public static class Master &#123;</span><br><span class="line">        private String id;</span><br><span class="line">        private String driverClassName;</span><br><span class="line">        private String url;</span><br><span class="line">        private String username;</span><br><span class="line">        private String password;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Setter</span><br><span class="line">    @Getter</span><br><span class="line">    public static class Slave &#123;</span><br><span class="line">        private String name;</span><br><span class="line">        private String driverClassName;</span><br><span class="line">        private String url;</span><br><span class="line">        private String username;</span><br><span class="line">        private String password;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>클래스에 부여된 @ConfigurationProperties 어노테이션은 처음 사용시에 에러를 마주할 수 있습니다.<br>build.gradle 파일에 다음 의존성을 추가하면 해결됩니다.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    annotationProcessor &#x27;org.springframework.boot:spring-boot-configuration-processor&#x27;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>ReplicationDataSourceRouter.java</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">public class ReplicationDataSourceRouter extends AbstractRoutingDataSource &#123;</span><br><span class="line">    public static final String DATASOURCE_KEY_MASTER = &quot;master&quot;;</span><br><span class="line"></span><br><span class="line">    private DataSourceNames&lt;String&gt; dataSourceNames;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void setTargetDataSources(Map&lt;Object, Object&gt; targetDataSources) &#123;</span><br><span class="line">        super.setTargetDataSources(targetDataSources);</span><br><span class="line"></span><br><span class="line">        this.dataSourceNames = new DataSourceNames&lt;&gt;(</span><br><span class="line">                targetDataSources.keySet()</span><br><span class="line">                        .stream()</span><br><span class="line">                        .map(Object::toString)</span><br><span class="line">                        .collect(toList())</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected Object determineCurrentLookupKey() &#123;</span><br><span class="line">        boolean isReadOnly = TransactionSynchronizationManager.isCurrentTransactionReadOnly();</span><br><span class="line"></span><br><span class="line">        if (isReadOnly) &#123;</span><br><span class="line">            String dataSourceName = dataSourceNames.getNext();</span><br><span class="line">            logger.info(&quot;Connection &quot; + dataSourceName);</span><br><span class="line">            return dataSourceName;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        logger.info(&quot;Connection Master&quot;);</span><br><span class="line">        return DATASOURCE_KEY_MASTER;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static class DataSourceNames&lt;T&gt; &#123;</span><br><span class="line">        private final List&lt;T&gt; dataSourceNames;</span><br><span class="line">        private int sequence = 0;</span><br><span class="line"></span><br><span class="line">        public DataSourceNames(List&lt;T&gt; dataSourceNames) &#123;</span><br><span class="line">            this.dataSourceNames = dataSourceNames;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        public T getNext() &#123;</span><br><span class="line">            if (sequence &gt;= dataSourceNames.size()) &#123;</span><br><span class="line">                sequence = 0;</span><br><span class="line">            &#125;</span><br><span class="line">            return dataSourceNames.get(sequence++);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>ReplicationDataSourceRouter 클래스는 AbstractRoutingDataSource 클래스를 상속받아야 합니다.<br>determineCurrentLookupKey() 메서드를 재정의하여 트랜잭션에 따라 Master와 Slave로 분기한 후에 datasource의 key 값을 반환해줍니다.<br>여러 DB 서버에 균형있는 부하 분산을 위해 sequence 값을 증가시키면서 각 DB를 번갈아 가면서 순회합니다. </p>
+<p>마지막으로 Bean 설정을 등록하는 Configuration 클래스를 만들어줍니다.</p>
+<p>ReplicationDataSourceConfig.java</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">@RequiredArgsConstructor</span><br><span class="line">@EnableConfigurationProperties(ReplicationDataSourceProperties.class)</span><br><span class="line">@Configuration</span><br><span class="line">public class ReplicationDataSourceConfig &#123;</span><br><span class="line"></span><br><span class="line">    private final ReplicationDataSourceProperties dataSourceProperties;</span><br><span class="line">    private final JpaProperties jpaProperties; // (1)</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public DataSource routingDataSource() &#123;</span><br><span class="line">        Map&lt;Object, Object&gt; dataSources = new LinkedHashMap&lt;&gt;();</span><br><span class="line">        DataSource masterDateSource = createMasterDateSource();</span><br><span class="line">        dataSources.put(&quot;master&quot;, masterDateSource);</span><br><span class="line"></span><br><span class="line">        for (Slave slave : dataSourceProperties.getSlaves().values()) &#123;</span><br><span class="line">            DataSource slaveDataSource = createSlaveDataSource(slave);</span><br><span class="line">            dataSources.put(slave.getName(), slaveDataSource);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ReplicationDataSourceRouter replicationRoutingDataSource = new ReplicationDataSourceRouter();</span><br><span class="line">        replicationRoutingDataSource.setDefaultTargetDataSource(masterDateSource);</span><br><span class="line">        replicationRoutingDataSource.setTargetDataSources(dataSources);</span><br><span class="line">        return replicationRoutingDataSource;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public DataSource dataSource() &#123;</span><br><span class="line">        return new LazyConnectionDataSourceProxy(routingDataSource()); // (2)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean // (3)</span><br><span class="line">    public LocalContainerEntityManagerFactoryBean entityManagerFactory() &#123;</span><br><span class="line">        LocalContainerEntityManagerFactoryBean entityManagerFactory = new LocalContainerEntityManagerFactoryBean();</span><br><span class="line">        entityManagerFactory.setDataSource(dataSource());</span><br><span class="line">        entityManagerFactory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());</span><br><span class="line">        entityManagerFactory.setJpaPropertyMap(jpaProperties.getProperties());</span><br><span class="line">        entityManagerFactory.setPackagesToScan(&quot;com.golfie&quot;);</span><br><span class="line">        return entityManagerFactory;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean // (4)</span><br><span class="line">    public PlatformTransactionManager transactionManager() &#123;</span><br><span class="line">        JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();</span><br><span class="line">        jpaTransactionManager.setEntityManagerFactory(entityManagerFactory().getObject());</span><br><span class="line">        return jpaTransactionManager;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private DataSource createMasterDateSource() &#123;</span><br><span class="line">        Master master = dataSourceProperties.getMaster();</span><br><span class="line">        return createDataSource(</span><br><span class="line">                master.getDriverClassName(),</span><br><span class="line">                master.getUrl(),</span><br><span class="line">                master.getUsername(),</span><br><span class="line">                master.getPassword()</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private DataSource createSlaveDataSource(Slave slave) &#123;</span><br><span class="line">        return createDataSource(</span><br><span class="line">                slave.getDriverClassName(),</span><br><span class="line">                slave.getUrl(),</span><br><span class="line">                slave.getUsername(),</span><br><span class="line">                slave.getPassword()</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private DataSource createDataSource(String driverClassName, String url, String username, String password) &#123;</span><br><span class="line">        return DataSourceBuilder.create()</span><br><span class="line">                .type(HikariDataSource.class)</span><br><span class="line">                .url(url)</span><br><span class="line">                .driverClassName(driverClassName)</span><br><span class="line">                .username(username)</span><br><span class="line">                .password(password)</span><br><span class="line">                .build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>(1) - application-datasource.yml 파일의 spring.jpa 설정을 가져올 수 있습니다. </p>
+<p>(2) - Spring은 트랜잭션에 진입하는 순간 설정된 DataSource의 커넥션을 가져옵니다. 하지만, 저희는 트랜잭션에 따라 마스터와 슬레이브로 분기 처리를 해줘야하기 때문에 LazyConnectionDataSourceProxy를 사용하여 쿼리가 실행될 때 Datasource를 결정하여 커넥션을 가져오도록 합니다.</p>
+<p>(3) - EntityManagerFactory에 위에서 만들었던 DataSource Router, JPA DataSource설정 Map등을 설정해주고 LocalContainerEntityManagerFactoryBean으로 등록합니다.</p>
+<p>(4) - PlatformTransactionManager가 뭔지 궁금하신 분은 제가 이전에 작성했던 <a target="_blank" rel="noopener" href="https://robolovo.github.io/2021/12/23/Spring_Transaction_Abstraction/">스프링 트랜잭션(Transaction) 추상화</a> 를 참고하시기 바랍니다. </p>
+</section>
+    <!-- Tags START -->
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/02/03/JVM/">
+        <span class="nav-arrow">← </span>
+        
+          JVM Spec으로 알아보는 JVM 런 타임 데이터 영역
+        
+      </a>
+    
+    
+  </div>
+
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://junslee.dev/2022/02/24/DB_Replication/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
