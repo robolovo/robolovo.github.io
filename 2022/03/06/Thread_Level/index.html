@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="junslee&#39;s blog">
+  <meta name="keyword" content="develop">
+  
+    <link rel="shortcut icon" href="/css/images/favicon.png">
+  
+  <title>
+    
+      유저 레벨 스레드와 커널 레벨 스레드 | Home
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+  
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <span>Home</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/develop/" class="item-link">Develop</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/diary/" class="item-link">Diary</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/develop/" class="menu-link">Develop</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/diary/" class="menu-link">Diary</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>유저 레벨 스레드와 커널 레벨 스레드</h2>
+  <p class="post-date">2022-03-06</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="유저-레벨-스레드와-커널-레벨-스레드에-대해-알아봅시다"><a href="#유저-레벨-스레드와-커널-레벨-스레드에-대해-알아봅시다" class="headerlink" title="유저 레벨 스레드와 커널 레벨 스레드에 대해 알아봅시다."></a>유저 레벨 스레드와 커널 레벨 스레드에 대해 알아봅시다.</h1><img height="350" src="images/thread.png" width="700"/>
+
+<br>
+<br>
+
+<h1 id="유저-레벨-스레드"><a href="#유저-레벨-스레드" class="headerlink" title="유저 레벨 스레드"></a>유저 레벨 스레드</h1><ul>
+<li><p>사용자 영역에서 스레드 라이브러리에 의해 생성/관리/스케줄 됩니다. 또한 스레드 라이브러리가 TCB를 사용자 공간에 생성하고 소유합니다.</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Thread thread = <span class="keyword">new</span> Thread();</span><br><span class="line">thread.start();</span><br></pre></td></tr></table></figure></li>
+<li><p>커널은 유저 레벨 스레드의 존재를 모릅니다. 따라서 커널의 관리(개입)를 받지 않으며 생성 및 관리의 오버헤드가 적습니다. 이식성 또한 좋습니다.</p>
+<ul>
+<li><strong><em><code>유저 스레드 방식이 커널 스레드보다 오버헤드가 적은 이유는 스레드간 전환할 때마다 커널 스케줄러를 호출할 필요가 없기 때문입니다.  유저 스레드는 스레드 스케줄러가 유저 모드에만 있기 때문에 그런 오버헤드는 발생하지 않습니다.</code></em></strong></li>
+<li><em><strong><code>커널 스케줄러로 진입하려면 프로세스 모드를 사용자 모드에서 커널 모드로 전환해야 하는데,  이때 사용자쪽 하드웨어와 레지스터를 전부 저장시키고, 커널 레지스터로 복구하고, 기타 등등의 수많은 작업이 일어납니다.  따라서 유저 모드와 커널 모드를 많이 왔다갔다 할 수록 성능은 급격하게 떨어집니다.</code></strong></em></li>
+</ul>
+</li>
+<li><p>N개의 사용자 수준 스레드가 1개의 커널 수준 스레드에 매핑됩니다. → <strong>N:1 매핑</strong></p>
+</li>
+<li><p>멀티 코어 CPU 환경에서 멀티 스레드의 병렬 처리가 불가능 합니다. → <strong>Concurrency</strong></p>
+</li>
+<li><p>하나의 사용자 레벨 스레드가 시스템 호출 도중 입출력 등으로 인해 중단(Blocked)되면 프로세스의 모든 사용자 레벨 스레드가 중단됩니다.</p>
+</li>
+</ul>
+<br>
+<br>
+
+<h1 id="커널-레벨-스레드"><a href="#커널-레벨-스레드" class="headerlink" title="커널 레벨 스레드"></a>커널 레벨 스레드</h1><ul>
+<li>OS 커널 레벨에서 커널에 의해 생성/관리/스케줄 됩니다. → 커널 API 혹은 시스템 호출 필요</li>
+<li>커널이 TCB를 커널 공간에 생성하고 소유합니다.</li>
+<li>커널 영역에서 스레드의 생성/관리를 수행하기 때문에 컨텍스트 스위치 등의 오버헤드가 큽니다.</li>
+<li>사용자 수준 스레드와 커널 수준 스레드가 <strong>1:1 매핑</strong>되는 구조입니다. 따라서 사용자 수준 스레드가 만들어지면 그에 따라 커널 수준 스레드도 생성됩니다.</li>
+<li>멀티 코어 CPU 환경에서 멀티 스레드의 병렬 실행이 가능합니다. → <strong>Parallelism</strong></li>
+<li>하나의 커널 레벨 스레드가 시스템 호출 도중 입출력 등으로 중단(Blocked)되어도 해당 스레드만 중단 됩니다.</li>
+</ul>
+<br>
+<br>
+<br>
+
+<h1 id="마무리"><a href="#마무리" class="headerlink" title="마무리"></a>마무리</h1><h2 id="현대-대부분의-OS는-병렬-실행을-지원하는-커널-레벨-스레드-방식을-사용합니다-커널-모드로의-전환이-빈번하게-이루어져-오버헤드가-커-성능-저하가-발생하지만-멀티-코어-CPU를-사용한-스레드의-병렬-실행으로-얻는-이점이-훨씬-더-크기-때문인-것-같습니다"><a href="#현대-대부분의-OS는-병렬-실행을-지원하는-커널-레벨-스레드-방식을-사용합니다-커널-모드로의-전환이-빈번하게-이루어져-오버헤드가-커-성능-저하가-발생하지만-멀티-코어-CPU를-사용한-스레드의-병렬-실행으로-얻는-이점이-훨씬-더-크기-때문인-것-같습니다" class="headerlink" title="현대 대부분의 OS는 병렬 실행을 지원하는 커널 레벨 스레드 방식을 사용합니다. 커널 모드로의 전환이 빈번하게 이루어져 오버헤드가 커 성능 저하가 발생하지만, 멀티 코어 CPU를 사용한 스레드의 병렬 실행으로 얻는 이점이 훨씬 더 크기 때문인 것 같습니다."></a>현대 대부분의 OS는 병렬 실행을 지원하는 커널 레벨 스레드 방식을 사용합니다. 커널 모드로의 전환이 빈번하게 이루어져 오버헤드가 커 성능 저하가 발생하지만, 멀티 코어 CPU를 사용한 스레드의 병렬 실행으로 얻는 이점이 훨씬 더 크기 때문인 것 같습니다.</h2><br>
+<br>
+<br>
+<br></section>
+    <!-- Tags START -->
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/02/24/DB_Replication/">
+        <span class="nav-arrow">← </span>
+        
+          MySQL Replication with Spring Data JPA
+        
+      </a>
+    
+    
+  </div>
+
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://junslee.dev/2022/03/06/Thread_Level/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

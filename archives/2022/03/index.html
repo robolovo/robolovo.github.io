@@ -10,7 +10,7 @@
   
   <title>
     
-      Diary | Home
+      Home
     
   </title>
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -106,49 +106,104 @@
 </header>
 
     <div id="article-banner">
-  <br>
-  <h2>Diary</h2>
-  <br>
+  <br/>
+  <h2>Archives</h2>
+  <br/>
 </div>
-
-<main class="app-body">
+<main class="app-body" id="archives">
+  
+  
+  
+    <section class="time-section">
+  <h1 class="section-year">
+    2022
+  </h1>
+  <div class="section-list">
     
     
+      <div class="section-list-item">
+        <a href="/2022/03/06/Thread_Level/" class="archive-title">유저 레벨 스레드와 커널 레벨 스레드</a>
+        <p class="archive-date">03-06</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2022/02/24/DB_Replication/" class="archive-title">MySQL Replication with Spring Data JPA</a>
+        <p class="archive-date">02-24</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2022/02/03/JVM/" class="archive-title">JVM Spec으로 알아보는 JVM 런 타임 데이터 영역</a>
+        <p class="archive-date">02-03</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2022/02/02/Process_And_Virtual_Memory/" class="archive-title">프로세스와 가상 메모리</a>
+        <p class="archive-date">02-02</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2022/01/27/Network_Layer/" class="archive-title">TCP/IP 4계층 모델 네트워크 통신</a>
+        <p class="archive-date">01-27</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2022/01/19/Code_Reveiw_Knowhow/" class="archive-title">한번 듣고 평생 써먹는 코드 리뷰 노하우</a>
+        <p class="archive-date">01-19</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2022/01/16/OOP/" class="archive-title">객체지향 프로그래밍 자문자답</a>
+        <p class="archive-date">01-16</p>
+      </div>
+    
+      <div class="section-list-item">
+        <a href="/2022/01/04/Why_Test/" class="archive-title">자동화 테스트로 더 나은 소프트웨어 만들기</a>
+        <p class="archive-date">01-04</p>
+      </div>
+    
+  </div>
+</section>
+  
+    <section class="time-section">
+  <h1 class="section-year">
+    2021
+  </h1>
+  <div class="section-list">
     
     
+      <div class="section-list-item">
+        <a href="/2021/12/26/Spring_Security_01/" class="archive-title">Spring Security 파헤치기 (1)</a>
+        <p class="archive-date">12-26</p>
+      </div>
     
+      <div class="section-list-item">
+        <a href="/2021/12/25/Getting_Started_With_SpringBoot/" class="archive-title">Spring Boot를 시작하기 전에 알아두면 유용한 지식</a>
+        <p class="archive-date">12-25</p>
+      </div>
     
+      <div class="section-list-item">
+        <a href="/2021/12/23/Spring_Transaction_Abstraction/" class="archive-title">스프링 트랜잭션(Transaction) 추상화</a>
+        <p class="archive-date">12-23</p>
+      </div>
     
+      <div class="section-list-item">
+        <a href="/2021/12/21/Blog_Theme_Vexo/" class="archive-title">Hexo 블로그에 테마 적용하기</a>
+        <p class="archive-date">12-21</p>
+      </div>
     
+      <div class="section-list-item">
+        <a href="/2021/12/21/Blog_With_Github_Pages_And_Hexo/" class="archive-title">Github 블로그 만들기 With Hexo</a>
+        <p class="archive-date">12-21</p>
+      </div>
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
+  </div>
+</section>
   
 </main>
 
 <script>
   (function () {
-    var url = 'https://junslee.dev/diary/index.html';
+    var url = 'https://junslee.dev/archives/2022/03/index.html';
     $('#article-banner').geopattern(url);
     $('.header').removeClass('fixed-header');
   })();
