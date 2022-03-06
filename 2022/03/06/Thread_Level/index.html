@@ -121,20 +121,15 @@
 <br>
 
 <h1 id="유저-레벨-스레드"><a href="#유저-레벨-스레드" class="headerlink" title="유저 레벨 스레드"></a>유저 레벨 스레드</h1><ul>
-<li><p>사용자 영역에서 스레드 라이브러리에 의해 생성/관리/스케줄 됩니다. 또한 스레드 라이브러리가 TCB를 사용자 공간에 생성하고 소유합니다.</p>
-  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Thread thread = <span class="keyword">new</span> Thread();</span><br><span class="line">thread.start();</span><br></pre></td></tr></table></figure></li>
-<li><p>커널은 유저 레벨 스레드의 존재를 모릅니다. 따라서 커널의 관리(개입)를 받지 않으며 생성 및 관리의 오버헤드가 적습니다. 이식성 또한 좋습니다.</p>
-<ul>
+<li>사용자 영역에서 스레드 라이브러리에 의해 생성/관리/스케줄 됩니다. 또한 스레드 라이브러리가 TCB를 사용자 공간에 생성하고 소유합니다.  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Thread thread = <span class="keyword">new</span> Thread();</span><br><span class="line">thread.start();</span><br></pre></td></tr></table></figure></li>
+<li>커널은 유저 레벨 스레드의 존재를 모릅니다. 따라서 커널의 관리(개입)를 받지 않으며 생성 및 관리의 오버헤드가 적습니다. 이식성 또한 좋습니다.<ul>
 <li><strong><em><code>유저 스레드 방식이 커널 스레드보다 오버헤드가 적은 이유는 스레드간 전환할 때마다 커널 스케줄러를 호출할 필요가 없기 때문입니다.  유저 스레드는 스레드 스케줄러가 유저 모드에만 있기 때문에 그런 오버헤드는 발생하지 않습니다.</code></em></strong></li>
 <li><em><strong><code>커널 스케줄러로 진입하려면 프로세스 모드를 사용자 모드에서 커널 모드로 전환해야 하는데,  이때 사용자쪽 하드웨어와 레지스터를 전부 저장시키고, 커널 레지스터로 복구하고, 기타 등등의 수많은 작업이 일어납니다.  따라서 유저 모드와 커널 모드를 많이 왔다갔다 할 수록 성능은 급격하게 떨어집니다.</code></strong></em></li>
 </ul>
 </li>
-<li><p>N개의 사용자 수준 스레드가 1개의 커널 수준 스레드에 매핑됩니다. → <strong>N:1 매핑</strong></p>
-</li>
-<li><p>멀티 코어 CPU 환경에서 멀티 스레드의 병렬 처리가 불가능 합니다. → <strong>Concurrency</strong></p>
-</li>
-<li><p>하나의 사용자 레벨 스레드가 시스템 호출 도중 입출력 등으로 인해 중단(Blocked)되면 프로세스의 모든 사용자 레벨 스레드가 중단됩니다.</p>
-</li>
+<li>N개의 사용자 수준 스레드가 1개의 커널 수준 스레드에 매핑됩니다. → <strong>N:1 매핑</strong></li>
+<li>멀티 코어 CPU 환경에서 멀티 스레드의 병렬 처리가 불가능 합니다. → <strong>Concurrency</strong></li>
+<li>하나의 사용자 레벨 스레드가 시스템 호출 도중 입출력 등으로 인해 중단(Blocked)되면 프로세스의 모든 사용자 레벨 스레드가 중단됩니다.</li>
 </ul>
 <br>
 <br>
