@@ -10,7 +10,7 @@
   
   <title>
     
-      유저 레벨 스레드와 커널 레벨 스레드 | Home
+      Java의 Thread는 커널 레벨 스레드일까? 유저 레벨 스레드일까? | Home
     
   </title>
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -106,7 +106,7 @@
 </header>
 
     <div id="article-banner">
-  <h2>유저 레벨 스레드와 커널 레벨 스레드</h2>
+  <h2>Java의 Thread는 커널 레벨 스레드일까? 유저 레벨 스레드일까?</h2>
   <p class="post-date">2022-03-06</p>
   <div class="arrow-down">
     <a href="javascript:;"></a>
@@ -115,40 +115,53 @@
 <main class="app-body flex-box">
   <!-- Article START -->
   <article class="post-article">
-    <section class="markdown-content"><h1 id="유저-레벨-스레드와-커널-레벨-스레드에-대해-알아봅시다"><a href="#유저-레벨-스레드와-커널-레벨-스레드에-대해-알아봅시다" class="headerlink" title="유저 레벨 스레드와 커널 레벨 스레드에 대해 알아봅시다."></a>유저 레벨 스레드와 커널 레벨 스레드에 대해 알아봅시다.</h1><img height="350" src="images/thread.png" width="700"/>
-
-<br>
+    <section class="markdown-content"><br>
 <br>
 
-<h1 id="유저-레벨-스레드"><a href="#유저-레벨-스레드" class="headerlink" title="유저 레벨 스레드"></a>유저 레벨 스레드</h1><ul>
-<li>사용자 영역에서 스레드 라이브러리에 의해 생성/관리/스케줄 됩니다. 또한 스레드 라이브러리가 TCB를 사용자 공간에 생성하고 소유합니다.  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Thread thread = <span class="keyword">new</span> Thread();</span><br><span class="line">thread.start();</span><br></pre></td></tr></table></figure></li>
-<li>커널은 유저 레벨 스레드의 존재를 모릅니다. 따라서 커널의 관리(개입)를 받지 않으며 생성 및 관리의 오버헤드가 적습니다. 이식성 또한 좋습니다.<ul>
-<li><strong><em><code>유저 스레드 방식이 커널 스레드보다 오버헤드가 적은 이유는 스레드간 전환할 때마다 커널 스케줄러를 호출할 필요가 없기 때문입니다.  유저 스레드는 스레드 스케줄러가 유저 모드에만 있기 때문에 그런 오버헤드는 발생하지 않습니다.</code></em></strong></li>
-<li><em><strong><code>커널 스케줄러로 진입하려면 프로세스 모드를 사용자 모드에서 커널 모드로 전환해야 하는데,  이때 사용자쪽 하드웨어와 레지스터를 전부 저장시키고, 커널 레지스터로 복구하고, 기타 등등의 수많은 작업이 일어납니다.  따라서 유저 모드와 커널 모드를 많이 왔다갔다 할 수록 성능은 급격하게 떨어집니다.</code></strong></em></li>
-</ul>
-</li>
-<li>N개의 사용자 수준 스레드가 1개의 커널 수준 스레드에 매핑됩니다. → <strong>N:1 매핑</strong></li>
-<li>멀티 코어 CPU 환경에서 멀티 스레드의 병렬 처리가 불가능 합니다. → <strong>Concurrency</strong></li>
-<li>하나의 사용자 레벨 스레드가 시스템 호출 도중 입출력 등으로 인해 중단(Blocked)되면 프로세스의 모든 사용자 레벨 스레드가 중단됩니다.</li>
-</ul>
+<p>앞선 포스팅에서 유저 레벨 스레드와 커널 레벨 스레드에 대해서 글을 썼다.</p>
+<p>글을 쓰다 문득 든 궁금증.</p>
+<br>
+
+<h2 id="“-자바의-스레드는-커널-레벨-스레드일까-유저-레벨-스레드일까-“"><a href="#“-자바의-스레드는-커널-레벨-스레드일까-유저-레벨-스레드일까-“" class="headerlink" title="“ 자바의 스레드는 커널 레벨 스레드일까? 유저 레벨 스레드일까? “"></a>“ 자바의 스레드는 커널 레벨 스레드일까? 유저 레벨 스레드일까? “</h2><br>
+
+<p>오늘은 평소와 다르게 글을 쓰면서 천천히 생각해보려고 한다. 의식의 흐름대로.</p>
+<p>우선 다시 한번 상기시킬 겸 자바의 스레드가 어떻게 생성되고 실행되는 지 알아보자.</p>
+<p>자바 프로그램의 <strong>Main Thread</strong>는 JVM에 의해 생성된다.</p>
+<p>이 메인 스레드가 자바 프로그램의 main() 메서드의 존재를 확인하고 해당 클래스를 init 하면서 프로그램이 실행된다.</p>
+<p>그리고 메인 스레드 뿐만 아니라 Garbage Colllector와 같은 다른 데몬 스레드들도 함께 생성된다.</p>
+<p>(이때 생성된 스레드들은 자바 프로그램의 프로세스가 죽을 때까지 함께하는 스레드인 것 같다.)</p>
+<img height="250" src="images/image1.png" width="500"/>
+
+<p>위와 같이 직접 main 메서드에서 현재 스레드의 정보를 출력해보면 다음과 같은 결과가 나온다.</p>
+<img height="100" src="images/image2.png" width="150"/>
+
+<p>메인 스레드는 프로그램 내에서 최초 생성되는 스레드이기 때문에 반드시 Id가 1이다.</p>
+<p>여기서 잠깐 문제.</p>
+<p>이후 new Thread()를 통해 스레드를 생성하면 해당 스레드의 id는 몇일까?</p>
+<p>정답은 2가 아니라.. 직접 해봤는데 15가 나온다.</p>
+<p>(그 이유는 위에 말했던 것 처럼 메인 스레드 뿐만 아니라 다른 데몬 스레드들도 생성되기 때문이다.)</p>
+<p>그리고 한가지 눈에 띄는게 RUNNABLE 이라는 단어.</p>
+<p>RUNNABLE이란 스레드가 JVM에서 실행되고 있는 상태, 또는 컨텍스트 스위치되어 OS로부터 CPU 같은 시스템 자원을 할당 받기위해 기다리고 있는 상태일 수도 있는(?) 상태이다.</p>
+<p>참고로, 자바의 스레드 상태는 NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED 총 6가지의 상태로 나뉘고, 운영체제 전공 책에서 봤던 프로세스의 상태 전이도와는 약간 다르다.</p>
 <br>
 <br>
 
-<h1 id="커널-레벨-스레드"><a href="#커널-레벨-스레드" class="headerlink" title="커널 레벨 스레드"></a>커널 레벨 스레드</h1><ul>
-<li>OS 커널 레벨에서 커널에 의해 생성/관리/스케줄 됩니다. → 커널 API 혹은 시스템 호출 필요</li>
-<li>커널이 TCB를 커널 공간에 생성하고 소유합니다.</li>
-<li>커널 영역에서 스레드의 생성/관리를 수행하기 때문에 컨텍스트 스위치 등의 오버헤드가 큽니다.</li>
-<li>사용자 수준 스레드와 커널 수준 스레드가 <strong>1:1 매핑</strong>되는 구조입니다. 따라서 사용자 수준 스레드가 만들어지면 그에 따라 커널 수준 스레드도 생성됩니다.</li>
-<li>멀티 코어 CPU 환경에서 멀티 스레드의 병렬 실행이 가능합니다. → <strong>Parallelism</strong></li>
-<li>하나의 커널 레벨 스레드가 시스템 호출 도중 입출력 등으로 중단(Blocked)되어도 해당 스레드만 중단 됩니다.</li>
-</ul>
-<br>
+<h2 id="그럼-다시-본론으로-돌아가서"><a href="#그럼-다시-본론으로-돌아가서" class="headerlink" title="그럼, 다시 본론으로 돌아가서"></a>그럼, 다시 본론으로 돌아가서</h2><p>자바 스레드가 커널 레벨 스레드인지 유저 레벨 스레드인지…</p>
+<p>결론은 다음과 같다.</p>
+<ol>
+<li><p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/18278425/are-java-threads-created-in-user-space-or-kernel-space">https://stackoverflow.com/questions/18278425/are-java-threads-created-in-user-space-or-kernel-space</a></p>
+ <img height="70" src="images/image3.png" width="700"/>
+
+ <img height="70" src="images/image4.png" width="700"/></li>
+<li><p><a target="_blank" rel="noopener" href="https://medium.com/@unmeshvjoshi/how-java-thread-maps-to-os-thread-e280a9fb2e06">https://medium.com/@unmeshvjoshi/how-java-thread-maps-to-os-thread-e280a9fb2e06</a></p>
+ <img height="70" src="images/image5.png" width="700"/></li>
+</ol>
+<p>자바에서 스레드를 생성할 때 new Thread().start()에서 이 start()메서드는 내부에서 start0()라는 메서드를 호출한다. start0() 메서드는 C++로 구현되어있고, 결국 new Thread().start()를 통해 생성 및 실행되는 스레드는<br>커널 스레드와 1:1 매핑되는 → 커널 레벨 스레드이다.</p>
+<p>역시나 JVM이 유저 레벨 스레드일 수 는 없다. 그럼 너무 비효율 적일 수 밖에 없기 때문이다. (I/O작업 또는 네트워크 작업으로 한개의 스레드가 Block되면 다른 모든 스레드들이 Block되는 참사가 발생한다.)</p>
 <br>
 <br>
 
-<h1 id="마무리"><a href="#마무리" class="headerlink" title="마무리"></a>마무리</h1><h2 id="현대-대부분의-OS는-병렬-실행을-지원하는-커널-레벨-스레드-방식을-사용합니다-커널-모드로의-전환이-빈번하게-이루어져-오버헤드가-커-성능-저하가-발생하지만-멀티-코어-CPU를-사용한-스레드의-병렬-실행으로-얻는-이점이-훨씬-더-크기-때문인-것-같습니다"><a href="#현대-대부분의-OS는-병렬-실행을-지원하는-커널-레벨-스레드-방식을-사용합니다-커널-모드로의-전환이-빈번하게-이루어져-오버헤드가-커-성능-저하가-발생하지만-멀티-코어-CPU를-사용한-스레드의-병렬-실행으로-얻는-이점이-훨씬-더-크기-때문인-것-같습니다" class="headerlink" title="현대 대부분의 OS는 병렬 실행을 지원하는 커널 레벨 스레드 방식을 사용합니다. 커널 모드로의 전환이 빈번하게 이루어져 오버헤드가 커 성능 저하가 발생하지만, 멀티 코어 CPU를 사용한 스레드의 병렬 실행으로 얻는 이점이 훨씬 더 크기 때문인 것 같습니다."></a>현대 대부분의 OS는 병렬 실행을 지원하는 커널 레벨 스레드 방식을 사용합니다. 커널 모드로의 전환이 빈번하게 이루어져 오버헤드가 커 성능 저하가 발생하지만, 멀티 코어 CPU를 사용한 스레드의 병렬 실행으로 얻는 이점이 훨씬 더 크기 때문인 것 같습니다.</h2><br>
-<br>
-<br>
+<h2 id="자바-스레드는-커널-레벨-스레드이다"><a href="#자바-스레드는-커널-레벨-스레드이다" class="headerlink" title="자바 스레드는 커널 레벨 스레드이다."></a>자바 스레드는 커널 레벨 스레드이다.</h2><br>
 <br></section>
     <!-- Tags START -->
     
@@ -158,20 +171,13 @@
   <div class="nav-container">
     <!-- reverse left and right to put prev and next in a more logic postition -->
     
-      <a class="nav-left" href="/2022/02/24/DB_Replication/">
+      <a class="nav-left" href="/2022/03/06/Thread_Level/">
         <span class="nav-arrow">← </span>
         
-          MySQL Replication with Spring Data JPA
+          유저 레벨 스레드와 커널 레벨 스레드
         
       </a>
     
-    
-          <a class="nav-right" href="/2022/03/06/Java_Thread/">
-        
-          Java의 Thread는 커널 레벨 스레드일까? 유저 레벨 스레드일까?
-        
-        <span class="nav-arrow"> →</span>
-      </a>
     
   </div>
 
@@ -200,7 +206,7 @@
 
 <script>
   (function () {
-    var url = 'https://junslee.dev/2022/03/06/Thread_Level/';
+    var url = 'https://junslee.dev/2022/03/06/Java_Thread/';
     var banner = ''
     if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
       $('#article-banner').css({
