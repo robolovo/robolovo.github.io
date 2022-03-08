@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="junslee&#39;s blog">
+  <meta name="keyword" content="develop">
+  
+    <link rel="shortcut icon" href="/css/images/favicon.png">
+  
+  <title>
+    
+      Java, Immutable과 String | Home
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+  
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <span>Home</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/develop/" class="item-link">Develop</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/diary/" class="item-link">Diary</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/develop/" class="menu-link">Develop</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/diary/" class="menu-link">Diary</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Java, Immutable과 String</h2>
+  <p class="post-date">2022-03-08</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><br>
+
+<h1 id="Immutable이란-무엇인가요-Java의-String과-함께-설명해주세요"><a href="#Immutable이란-무엇인가요-Java의-String과-함께-설명해주세요" class="headerlink" title="Immutable이란 무엇인가요? Java의 String과 함께 설명해주세요."></a>Immutable이란 무엇인가요? Java의 String과 함께 설명해주세요.</h1><br>
+<br>
+
+<p><b>불변(Immutable)</b>이란 변하지 않는다는 것을 의미하며, 대표적인 자바의 불변 객체로는 String이 있습니다.</p>
+<br>
+
+<p>그런데 실제 예제를 보면 조금 난감합니다.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String str = <span class="string">&quot;before&quot;</span>;</span><br><span class="line">str = <span class="string">&quot;after&quot;</span>;</span><br></pre></td></tr></table></figure>
+<p>String은 불변 객체이기 때문에 2번째 라인에서 컴파일 오류가 나겠지라고 생각하지만 위 코드는 무리없이 잘 동작합니다.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> String str = <span class="string">&quot;before&quot;</span>;</span><br><span class="line">str = <span class="string">&quot;after&quot;</span>; <span class="comment">// 컴파일 오류</span></span><br></pre></td></tr></table></figure>
+<p>final 키워드를 넣어주니 생각한대로 컴파일 오류가 나네요.</p>
+<br>
+<br>
+
+<p>위의 과정을 통해 유추할 수 있는 것은,</p>
+<p>참조 타입에서의 불변이란 <strong>참조하고 있는 값 자체에 대한 변경이 불가능하다</strong>는 것입니다.</p>
+<p>그래서 다른 참조 값을 참조하고 싶다면 그 부분은 언제든지 변경이 가능합니다.</p>
+<p>(참고로, 객체를 final로 선언하면 그 변수에 다른 참조 값을 지정할 수 없기 때문에 두 번째 예시에서 컴파일 오류가 발생한 것입니다.)</p>
+<br>
+<br>
+
+<h2 id="‘참조하고-있는-값-자체에-대한-변경이-불가능하다-’"><a href="#‘참조하고-있는-값-자체에-대한-변경이-불가능하다-’" class="headerlink" title="‘참조하고 있는 값 자체에 대한 변경이 불가능하다.’"></a>‘참조하고 있는 값 자체에 대한 변경이 불가능하다.’</h2><p>이 말이 잘 와닿지 않아 자바의 메모리 구조를 통해 풀어서 설명해 보겠습니다.</p>
+<p>String str = “before”; 에서 “before”라는 문자열 자체는 힙 영역안에 문자열 상수 풀에 저장됩니다.</p>
+<p>그러면 str은 문자열 풀에 있는 “before”를 가리키게 되고, 이때 “before”는 변경할 수 없는 값입니다.</p>
+<p>그렇기 때문에 str = “after”; 처럼 str의 참조 값을 변경하게 되면 새로운 “after”라는 문자열을 상수 풀에 만들고 해당 문자열을 가리키도록 합니다.</p>
+<p>겉으로 보기에는 단지 문자열을 바꿨나 보다 라고 생각할 수 있지만 내부의 동작은 새로운 문자열을 만드는 것이죠.</p>
+<br>
+<br>
+<br>
+
+<h1 id="그렇다면-자바에서는-왜-String을-불변-객체로-만들었을까요"><a href="#그렇다면-자바에서는-왜-String을-불변-객체로-만들었을까요" class="headerlink" title="그렇다면 자바에서는 왜 String을 불변 객체로 만들었을까요?"></a>그렇다면 자바에서는 왜 String을 불변 객체로 만들었을까요?</h1><ol>
+<li><p>문자열 상수 풀 덕분에 런타임 시에 힙 영역의 많은 메모리를 절약할 수 있습니다.<br> 같은 값을 갖는 String에 대해 같은 메모리를 참조하도록 하기 때문입니다.<br> 그런데 만약 String의 참조 값이 불변이 아니라면, 참조 값을  변경했을 때 그 메모리를 참조 하고 있는 모든 참조(?)들이 영향을 받게됩니다.<br> 이는 개발자가 의도한 동작이 아닐 확률이 높고, 따라서 문제가 될 수 있습니다.</p>
+</li>
+<li><p>멀티 스레드 환경에서 안전(Thread-Safe)합니다. 값이 변경될 일이 없기 때문에 동기화 문제가 발생하지 않습니다.</p>
+</li>
+<li><p>String의 hashcode() 메서드는 생성 단계에서 최초 1번만 실제 해쉬 값을 계산하는 로직을 수행합니다.<br>그리고 이후부터는 생성 시 계산했던 값을 캐싱하여 리턴 하도록 되어 있습니다.<br>HashMap같은 경우 String을 Key로 두면 더 빠른 성능으로 사용할 수 있습니다.<br>이 방식은 String이 가변 객체라면 불가능한 일입니다.</p>
+</li>
+</ol>
+<br>
+<br>
+<br>
+
+<h1 id="마무리"><a href="#마무리" class="headerlink" title="마무리"></a>마무리</h1><hr>
+<blockquote>
+<p>클래스들은 가변적이여야 하는 매우 타당한 이유가 있지 않는 한 반드시 불변으로 만들어야 한다. 만약 클래스를 불변으로 만드는 것이 불가능하다면, 가능한 변경 가능성을 최소화하라.</p>
+<ul>
+<li>Effective Java</li>
+</ul>
+</blockquote>
+<p>마지막으로 중간에 끼워넣기 애매했던 예제 코드들로 마무리하도록 하겠습니다.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="string">&quot;Hello&quot;</span>;</span><br><span class="line">String s2 = <span class="string">&quot;Hello&quot;</span>;</span><br><span class="line">System.out.println(s1 == s2); <span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">String s1 = <span class="keyword">new</span> String(<span class="string">&quot;Hello&quot;</span>);</span><br><span class="line">String s2 = <span class="string">&quot;Hello&quot;</span>;</span><br><span class="line">System.out.println(s1 == s2); <span class="comment">//false</span></span><br><span class="line">s1 = <span class="string">&quot;Hello&quot;</span>;</span><br><span class="line">System.out.println(s1 == s2); <span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+
+<br></section>
+    <!-- Tags START -->
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/03/06/Java_Thread/">
+        <span class="nav-arrow">← </span>
+        
+          Java의 Thread는 커널 레벨 스레드일까? 유저 레벨 스레드일까?
+        
+      </a>
+    
+    
+  </div>
+
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://junslee.dev/2022/03/08/Immutable_and_String/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
