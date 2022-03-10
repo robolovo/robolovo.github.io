@@ -10,7 +10,7 @@
   
   <title>
     
-      TCP/IP 4계층 모델 네트워크 통신 | Home
+      Java, volatile과 synchronized 간단 정리 | Home
     
   </title>
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -106,8 +106,8 @@
 </header>
 
     <div id="article-banner">
-  <h2>TCP/IP 4계층 모델 네트워크 통신</h2>
-  <p class="post-date">2022-01-27</p>
+  <h2>Java, volatile과 synchronized 간단 정리</h2>
+  <p class="post-date">2022-03-10</p>
   <div class="arrow-down">
     <a href="javascript:;"></a>
   </div>
@@ -117,59 +117,50 @@
   <article class="post-article">
     <section class="markdown-content"><br>
 
-<img alt="통합테스트" height="550" src="images/네트워크.png" width="1000"/>
-
-<br>
-
-<ol>
-<li><p>커널에 <b>‘TCP/IP로 통신하고 싶으니까 상대방 애플리케이션과 통신할 수 있는 회선을 열어줘’</b>라고 외뢰(시스템 콜).</p>
-<ul>
-<li>이때 접속 대상 서버의 IP 주소와 TCP포트의 2가지 정보가 필요.</li>
+<h2 id="자바-멀티-스레드-환경에서-발생하는-문제"><a href="#자바-멀티-스레드-환경에서-발생하는-문제" class="headerlink" title="자바 멀티 스레드 환경에서 발생하는 문제"></a>자바 멀티 스레드 환경에서 발생하는 문제</h2><ul>
+<li>여러 스레드(혹은 사용자?)에서 공유 중인 가변 데이터를 갱신하는 경우 동기화가 되지 않는 문제가 발생할 수 있습니다.</li>
 </ul>
-</li>
-<li><p>외뢰 받은 커널은 <b>소켓을 만들어 줌</b>(데이터를 보내기 위해 구멍을 연 것).</p>
-</li>
-<li><p><b>TCP를 사용한다는 것과 IP 주소 및 포트 번호를 커널에 전달(시스템 콜)</b>하면, 접속 대상 서버와의 연결이 생성 됨.</p>
-</li>
-<li><p>이때 상대방 서버에서도 소켓이 만들어지며 상대 서버와의 사이에 <b>가상 경로(버츄얼 서킷)</b>가 생성됨.</p>
-<ul>
-<li>실제 데이터는 물리적인 통신 케이블을 통해 긴 여정을 거쳐서 상대방에게 전달되는 것이지만, 프로세스 관점에서는 소켓에 기록한 데이터가 가상 경로를 통해서 상대 통신 소켓으로 나오는 것.</li>
-<li>가상 경로를 생성할 때 TCP의 <b>3-way handshaking</b>을 통해 생성함.<ul>
-<li>간단히 예를 들면, 상대 서버가 80포트를 리슨하고 있다면 80포트로 통신 요구가 오고 별 문제가 없으면 열어도 된다고 응답. 그리고 나서 가상경로가 열리는데, 이 과정에서 3번의 회신이 오가서 <b>3-way handshaking</b>이라고 함.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><b>소켓에 기록된 데이터</b>는 <b>큐(FIFO)</b>를 경유해서 커널 내 네트워크 처리 부분에 전달됨. </p>
-</li>
-<li><p>큐를 거쳐 커널에 전달된 데이터는 <b>소켓 버퍼</b>라는 메모리 영역에서 처리되는데, <b>데이터에 TCP 헤더를 붙여서 TCP 세그먼트를 생성</b>함.  </p>
-</li>
-<li><p>TCP 세그머트가 만들어지면 다음은 IP 처리가 시작되는데, 이때 <b>TCP 세그먼트에 IP 헤더를 붙여서 IP 패킷을 생성</b>.</p>
-<ul>
-<li><b>IP 패킷(IP 다이어그램)</b>  ==  <b>IP 헤더</b> + <b>TCP 세그먼트</b> == <b>IP 헤더</b> + <b>TCP 헤더</b> + <b>데이터</b></li>
-<li>대상 서버까지는 이 IP 패킷 형태로 네트워크를 경유해서 도달함. (IP 헤더에는 최종 목적지 서버의 IP 주소가 기록됨.)</li>
-</ul>
-</li>
-<li><p>IP 패킷이 만들어지면 계속해서 링크 계층(대표적인 프로토콜: 이더넷, ethernet)의 처리가 시작됨. </p>
-<ul>
-<li>IP 패킷에 <b>이더넷 헤더와 푸터</b>를 붙여서 <b>이더넷 프레임</b>을 만든다. </li>
-<li>이더넷 헤더에는 <b>링크 계층 주소인 MAC 주소</b>가 기록되고, 목적지 IP 주소에 따라 <b>라우팅 테이블</b>을 이용해서 어떤 NIC에서 보내야 할지 결정.</li>
-</ul>
-</li>
-<li><p>그 후에 OS가 버스를 통해 NIC(Network Interface Controller)에 전달.</p>
-</li>
-<li><p>IP가 최종 목적지 서버까지 <b>복수의 네트워크를 경유해서 데이터를 전송</b>한다.</p>
-<ul>
-<li>송신 및 수신 시에 서버 내에서만 처리되는 TCP와 달리 <b>IP는 경로 도중에 다양한 처리가 이루어진다</b>. e.g. <b>라우팅(Routing)</b></li>
-</ul>
-</li>
-</ol>
 <br>
 <br>
 <br>
 
-<h3 id="참조-문헌"><a href="#참조-문헌" class="headerlink" title="참조 문헌"></a>참조 문헌</h3><p><a target="_blank" rel="noopener" href="http://www.kyobobook.co.kr/product/detailViewKor.laf?mallGb=KOR&ejkGb=KOR&barcode=9791185890265">그림으로 공부하는 IT 인프라 구조</a></p>
+<h2 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h2><ul>
+<li>volatile은 CPU cache가 아닌 Main Memory에 대한 read, write를 보장하는 키워드로, 모든 스레드 간의 변수에 대한 가시성 문제를 해결하여 모든 스레드가 동일 시점에 동일한 값을 가지도록 동기화하는 역할을 합니다.</li>
+</ul>
+<img height="250" src="images/thread.png" width="300"/>
+
+<ul>
+<li>volatile은 원자적 연산에서 해당 데이터의 동기화를 보장합니다.<ul>
+<li>비원자적 연산에서는 volatile 키워드만으로는 완벽하게 동기화를 보장할 수 없기 때문에 아래의 synchronized 키워드를 사용해야 합니다.</li>
+</ul>
+</li>
+</ul>
 <br>
+<br>
+<br>
+
+<h2 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h2><ul>
+<li>synchronized는 해당 메서드나 블록을 한번에 한 스레드씩 수행하도록 보장하는 키워드입니다.</li>
+<li>즉, 하나의 스레드가 lock을 얻게 되면 수행이 끝나서 lock이 풀릴때까지 다른 스레드들은 대기하게 됩니다.</li>
+<li>synchronized는 하나의 스레드만 진입하도록 하는 배타적 실행 동기화뿐만 아니라 가장 최근의 값(메인 메모리에서)을 가져오는 통신 동기화 기능도 같이 수행합니다.</li>
+</ul>
+<br>
+<br>
+<br>
+
+<h2 id="마무리"><a href="#마무리" class="headerlink" title="마무리"></a>마무리</h2><ul>
+<li>volatile(통신 동기화)만으로 동기화가 되는 상황이라면 synchonized보다는 volatile만으로 동기화 처리를 하는 것이 낫습니다. 왜냐하면 배타적 실행을 위해 락을 획득하고 반환하는 비용이 발생하지 않기 때문입니다.</li>
+<li>만약 배타적 실행 제어가 필요하다면 synchonized를 사용해야 합니다.</li>
+</ul>
+<br>
+<br>
+<br>
+
+<h3 id="출처"><a href="#출처" class="headerlink" title="출처"></a>출처</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://jronin.tistory.com/110">https://jronin.tistory.com/110</a> [자바 동기화 처리 - volatile과 synchronized]</li>
+<li><a target="_blank" rel="noopener" href="https://nesoy.github.io/articles/2018-06/Java-volatile">https://nesoy.github.io/articles/2018-06/Java-volatile</a> [Java volatile이란?]</li>
+<li><a target="_blank" rel="noopener" href="https://jgrammer.tistory.com/entry/Java-%ED%98%BC%EB%8F%99%EB%90%98%EB%8A%94-synchronized-%EB%8F%99%EA%B8%B0%ED%99%94-%EC%A0%95%EB%A6%AC">https://jgrammer.tistory.com/entry/Java-혼동되는-synchronized-동기화-정리</a></li>
+</ul>
 <br></section>
     <!-- Tags START -->
     
@@ -179,20 +170,13 @@
   <div class="nav-container">
     <!-- reverse left and right to put prev and next in a more logic postition -->
     
-      <a class="nav-left" href="/2022/01/19/Code_Reveiw_Knowhow/">
+      <a class="nav-left" href="/2022/03/08/Immutable_and_String/">
         <span class="nav-arrow">← </span>
         
-          한번 듣고 평생 써먹는 코드 리뷰 노하우
+          Java, Immutable과 String
         
       </a>
     
-    
-          <a class="nav-right" href="/2022/01/31/TCP_UDP/">
-        
-          전송 계층 프로토콜 TCP와 UDP
-        
-        <span class="nav-arrow"> →</span>
-      </a>
     
   </div>
 
@@ -221,7 +205,7 @@
 
 <script>
   (function () {
-    var url = 'https://junslee.dev/2022/01/27/Network_Layer/';
+    var url = 'https://junslee.dev/2022/03/10/Volatile_Synchronized/';
     var banner = ''
     if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
       $('#article-banner').css({

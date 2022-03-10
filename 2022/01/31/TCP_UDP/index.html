@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="junslee&#39;s blog">
+  <meta name="keyword" content="develop">
+  
+    <link rel="shortcut icon" href="/css/images/favicon.png">
+  
+  <title>
+    
+      전송 계층 프로토콜 TCP와 UDP | Home
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+  
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <span>Home</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/develop/" class="item-link">Develop</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/diary/" class="item-link">Diary</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/develop/" class="menu-link">Develop</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/diary/" class="menu-link">Diary</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>전송 계층 프로토콜 TCP와 UDP</h2>
+  <p class="post-date">2022-01-31</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><br>
+
+<h1 id="전송-계층-Transport-Layer-의-대표적인-프로토콜인-TCP와-UDP에-대해서-알아봅니다"><a href="#전송-계층-Transport-Layer-의-대표적인-프로토콜인-TCP와-UDP에-대해서-알아봅니다" class="headerlink" title="전송 계층(Transport Layer)의 대표적인 프로토콜인 TCP와 UDP에 대해서 알아봅니다."></a><strong>전송 계층(Transport Layer)의 대표적인 프로토콜인 TCP와 UDP에 대해서 알아봅니다.</strong></h1><br>
+
+<h1 id="들어가기-전"><a href="#들어가기-전" class="headerlink" title="들어가기 전"></a>들어가기 전</h1><p>TCP와 UDP에 대해서 말하기 전에 연결지향형과 비연결형에 대해서 알아봅니다.</p>
+<p>또한, TCP와 UDP의 등장 배경에 대해서도 알아보겠습니다.</p>
+<br>
+
+<h4 id="연결지향-vs-비연결"><a href="#연결지향-vs-비연결" class="headerlink" title="연결지향 vs 비연결"></a>연결지향 vs 비연결</h4><p><strong>연결지향</strong></p>
+<p>송신자와 수신자 사이의 논리적인 연결을 확립하고 데이터를 전송하는 방법입니다.<br>패킷들의 순서가 맞지 않을 위험이 적고 오류 발생 시 재전송을 하여 신뢰성 있는 전송이라고 할 수 있습니다.</p>
+<p><strong>비연결</strong></p>
+<p>송신자와 수신자 사이에 연결을 확립하지 않고 데이터를 전송하는 방법입니다.<br>오류 확인을 하지 못하므로 신뢰성 없는 전송이라고 할 수 있습니다. 하지만 연결확립에 걸리는 시간이 없어 전송 속도가 빠릅니다.<br><strong>TCP</strong>는 <strong>UDP</strong>와 다르게 오류가 발생하면 해당 정보를 재전송할 수 있어서 신뢰성 프로토콜.<br><strong>IP</strong>는 간단한 오류 검사 기능만 존재하는 신뢰성이 보장되지 않는 프로토콜.<br><strong>따라서 TCP는 연결지향 프로토콜의 예, IP와 UDP는 비연결 프로토콜의 예라고 할 수 있습니다.</strong></p>
+<br>
+
+<h4 id="TCP와-UDP는-왜-나오게-됐는가"><a href="#TCP와-UDP는-왜-나오게-됐는가" class="headerlink" title="TCP와 UDP는 왜 나오게 됐는가?"></a>TCP와 UDP는 왜 나오게 됐는가?</h4><ul>
+<li>IP의 역할은 Host to Host만을 지원한다. 장치에서 장치로의 이동은 IP로 해결되지만, 하나의 장비안에서 수많은 프로그램들이 통신을 할 경우에는 IP만으로는 한계가 있다. </li>
+<li>또한, IP에서 오류가 발생한다면 ICMP에서 알려준다. 하지만 ICMP는 알려주기만 할 뿐 대처를 못하기 때문에 IP보다 상위 계층에서 처리를 해줘야한다. </li>
+<li>1번을 해결하기 위해 포트 번호가 나오게 됐고, 2번을 해결하기 위해 상위 프로토콜인 TCP와 UDP가 나오게 되었다.</li>
+<li>출처: <a target="_blank" rel="noopener" href="https://gyoogle.dev/blog/computer-science/network/UDP.html">https://gyoogle.dev/blog/computer-science/network/UDP.html</a></li>
+</ul>
+<br>
+<br>
+<br>
+
+<h1 id="TCP"><a href="#TCP" class="headerlink" title="TCP"></a>TCP</h1><hr>
+<ul>
+<li><strong>연결지향</strong> 프로토콜</li>
+<li><strong>높은</strong> <strong>신뢰성</strong>을 보장<ul>
+<li>프로세스가 자신의 수신 버퍼로 읽은 데이터 스트림이 손상되지 않았으며 손실이나 중복이 없다는 것과 순서가 유지된다는 것을 보장합니다.</li>
+</ul>
+</li>
+<li><strong>3-way handshaking</strong> 과정을 통해 연결을 설정하고 <strong>4-way handshaking</strong>을 통해 해제합니다.</li>
+<li>TCP는 TCP 헤더와 애플리케이션 데이터를 하나로 만들어 TCP 세그먼트를 형성합니다.<ul>
+<li><strong>TCP 세그먼트 = TCP 헤더 + 애플리케이션 데이터</strong></li>
+</ul>
+</li>
+<li><strong>양방향 프로토콜</strong> → 요청을 하면 반드시 응답을 받아야 합니다.</li>
+<li><strong>흐름제어</strong>와 <strong>혼잡제어</strong></li>
+</ul>
+<blockquote>
+<p>   💡 <b>TCP의 흐름제어와 혼잡제어</b></p>
+<ul>
+<li><p><strong>흐름제어</strong></p>
+<p>수신측이 송신측보다 데이터 처리 속도가 빠르면 문제없지만, 송신측의 속도가 빠를 경우 문제가 생긴다.</p>
+<p>수신측에서 제한된 저장 용량을 초과한 이후에 도착하는 데이터는 손실 될 수 있으며, 만약 손실 된다면 불필요하게 응답과 데이터 전송이 송/수신 측 간에 빈번이 발생한다.</p>
+<p>이러한 위험을 줄이기 위해 송신 측의 데이터 전송량을 수신측에 따라 조절해야한다.</p>
+</li>
+<li><p><strong>혼잡제어</strong></p>
+<p>송신측의 데이터는 지역망이나 인터넷으로 연결된 대형 네트워크를 통해 전달된다. 만약 한 라우터에 데이터가 몰릴 경우, 자신에게 온 데이터를 모두 처리할 수 없게 된다. 이런 경우 호스트들은 또 다시 재전송을 하게되고 결국 혼잡만 가중시켜 오버플로우나 데이터 손신을 발생시키게 된다. 따라서 이러한 네트워크의 혼잡을 피하기 우해 송신측에서 보내는 데이터의 전송속도를 강제로 줄이게 되는데, 이러한 작업을 혼잡제어라고 한다.</p>
+<p>또한 네트워크 내에 패킷의 수가 과도하게 증가하는 현상을 혼잡이라 하며, 혼잡 현상을 방지하거나 제거하는 기능을 <strong>혼잡제어</strong>라고 한다.</p>
+</li>
+</ul>
+<p>   출처: <a target="_blank" rel="noopener" href="https://gyoogle.dev/blog/computer-science/network/%ED%9D%90%EB%A6%84%EC%A0%9C%EC%96%B4%20&%20%ED%98%BC%EC%9E%A1%EC%A0%9C%EC%96%B4.html">https://gyoogle.dev/blog/computer-science/network/흐름제어 &amp; 혼잡제어.html</a></p>
+</blockquote>
+<br>
+<br>
+<br>
+
+<h1 id="UDP"><a href="#UDP" class="headerlink" title="UDP"></a>UDP</h1><hr>
+<ul>
+<li><strong>비연결</strong> 프로토콜</li>
+<li>간단한 데이터를 빠른 속도로 전송하고자 하는 어플리케이션에 적절합니다. → ex) 게임, 스트리밍, 라이브 콘텐츠, VoIP(음성 인터넷 프로토콜)</li>
+<li>정보를 주고 받을 때 정보를 보내거나 받는다는 신호절차를 거치지 않습니다.</li>
+<li><strong>낮은 신뢰성</strong><ul>
+<li>패킷의 순서가 올바르게 전달됐는지 보장하지 않습니다.</li>
+<li>흐름제어와 혼잡제어를 하지 않습니다.</li>
+<li>헤더에 Checksum 필드를 통해서 <strong>최소한의 오류만 검출</strong>합니다. (중복 검사의 한 형태로, 송신된 자료의 무결성을 보호하는 단순한 방법)</li>
+</ul>
+</li>
+</ul>
+<br>
+<br>
+<br>
+
+
+<h1 id="TCP-vs-UDP-결론"><a href="#TCP-vs-UDP-결론" class="headerlink" title="TCP vs UDP: 결론"></a>TCP vs UDP: 결론</h1><p><strong>TCP</strong>는 데이터를 전송하는 동안 여러 가지 검사를 수행하며 일반적으로 패킷 손실을 방지하는 데 더 과감하므로 웹 사이트, 이메일, 인스턴트 메시지, 사진 및 파일 공유에 적합합니다.</p>
+<p><strong>UDP</strong>는 목적지가 올바른지 확인하고 패킷의 무결성을 확인하지만 발신자에게 손실된 패킷을 다시 보내도록 요청하지 않고 대신 삭제합니다. 즉, 더 빠른 연결을 얻을 수 있지만 패킷을 함께 삭제할 수 있습니다. UDP는 대부분 게임, VoIP, 스트리밍 비디오 및 라이브 콘텐츠 방송에 사용되며, 여기서 몇 개의 패킷 손실이 최종 결과에 너무 큰 영향을 미치지 않아야 합니다.</p>
+<p>출처: <a target="_blank" rel="noopener" href="https://koreantech.org/%EC%A0%95%EC%9D%98-tcp%EC%99%80-udp%EC%9D%98-%EC%B0%A8%EC%9D%B4%EC%A0%90/">https://koreantech.org/정의-tcp와-udp의-차이점/</a></p>
+<br></section>
+    <!-- Tags START -->
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/01/27/Network_Layer/">
+        <span class="nav-arrow">← </span>
+        
+          TCP/IP 4계층 모델 네트워크 통신
+        
+      </a>
+    
+    
+          <a class="nav-right" href="/2022/02/02/Process_And_Virtual_Memory/">
+        
+          프로세스와 가상 메모리
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'https://junslee.dev/2022/01/31/TCP_UDP/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
